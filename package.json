@@ -1,0 +1,26 @@
+{
+  "name": "meelow",
+  "version": "1.0.0",
+  "description": "this is my first personal project",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon --inspect index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cloudinary": "^2.3.0",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "md5": "^2.3.0",
+    "mongoose": "^8.5.1",
+    "mongoose-slug-updater": "^3.3.0",
+    "multer": "^1.4.5-lts.1",
+    "nodemailer": "^6.9.14",
+    "socket.io": "^4.7.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  }
+}
