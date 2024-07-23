@@ -25,4 +25,13 @@ const CONFIG_MESSAGE_ERRORS = {
     },
 };
 
-module.exports = CONFIG_MESSAGE_ERRORS
+const ROLE_SYSTEM = {
+  ADMIN: 3,
+  VIP: 2,
+  BASIC: 1
+}
+
+module.exports = {
+  CONFIG_MESSAGE_ERRORS,
+  ROLE_SYSTEM
+}

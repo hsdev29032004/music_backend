@@ -5,9 +5,9 @@ const UserSchema = new mongoose.Schema({
     email: String,
     password: String,
     token: String,
-    role: {
-        type: String,
-        default: "basic"
+    level: {
+        type: Number,
+        default: 1
     },
     avatar: {
         type: String,
