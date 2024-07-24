@@ -5,6 +5,10 @@ const UserSchema = new mongoose.Schema({
     email: String,
     password: String,
     token: String,
+    deleted: {
+        type: Boolean,
+        default: false
+    },
     level: {
         type: Number,
         default: 1
@@ -25,6 +29,8 @@ const UserSchema = new mongoose.Schema({
         type: Array,
         default: []
     }
+}, {
+    timestamps: true
 })
 
 const User = mongoose.model("User", UserSchema, "users")
