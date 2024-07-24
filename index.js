@@ -1,5 +1,6 @@
 const express = require("express")
 const app = express()
+const bodyParser = require('body-parser');
 const cookieParser = require("cookie-parser")
 require("dotenv").config()
 
@@ -10,6 +11,8 @@ database.connect()
 const port = process.env.PORT
 
 app.use(cookieParser())
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 systemRoute(app)
 

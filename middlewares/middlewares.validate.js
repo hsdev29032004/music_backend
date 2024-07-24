@@ -40,6 +40,7 @@ const validateLogin = (req, res, next) => {
 
 const validateRegister = (req, res, next) => {
     try {
+        console.log(req.body);
         let errors = {};
 
         if (!req.body.email) {
