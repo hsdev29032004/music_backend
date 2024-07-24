@@ -24,7 +24,7 @@ const validateLogin = (req, res, next) => {
             return res.status(400).json({
                 status: "error",
                 msg: "Dữ liệu không hợp lệ",
-                errors: errors
+                data: errors
             });
         }
 
@@ -65,10 +65,10 @@ const validateRegister = (req, res, next) => {
         }
 
         if (Object.keys(errors).length > 0) {
-            return res.status(400).json({
+            return res.status(CONFIG_MESSAGE_ERRORS.INVALID.status).json({
                 status: "error",
                 msg: "Dữ liệu không hợp lệ",
-                errors: errors
+                data: errors
             });
         }
 
@@ -82,7 +82,15 @@ const validateRegister = (req, res, next) => {
     }
 };
 
+const validateInput = (data, arrRequired) => {
+    const missingFields = arrRequired.filter(
+      field => !JSON.stringify(data[field])
+    );
+    return missingFields;
+};
+
 module.exports = {
     validateLogin,
-    validateRegister
+    validateRegister,
+    validateInput
 };

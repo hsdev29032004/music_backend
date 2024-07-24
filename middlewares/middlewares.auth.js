@@ -4,19 +4,27 @@ const User = require("../models/models.users.js")
 const checkLogin = async (req, res, next) => {
     try {
         if (!req.cookies.token) {
-            return res.redirect("/login")
+            return res.status(CONFIG_MESSAGE_ERRORS.UNAUTHORIZED.status).json({
+                status: "error",
+                msg: "Bạn cần đăng nhập",
+                data: null
+            })
         }
         const user = await User.findOne({ token: req.cookies.token })
         if (!user) {
-            return res.redirect("/login")
+            return res.status(CONFIG_MESSAGE_ERRORS.UNAUTHORIZED.status).json({
+                status: "error",
+                msg: "Bạn cần đăng nhập",
+                data: null
+            })
         }
         res.locals.user = user
         next()
     } catch (error) {
-        return res.json({
-            code: CONFIG_MESSAGE_ERRORS.UNAUTHORIZED.status,
+        return res.status(CONFIG_MESSAGE_ERRORS.UNAUTHORIZED.status).json({
             status: "error",
-            msg: "Lỗi hệ thống."
+            msg: "Lỗi hệ thống.",
+            data: null
         })
     }
 }
@@ -32,12 +40,15 @@ const checkAuth = (requireLevel) => async (req, res, next) => {
             next()
         }
     } catch (error) {
-        return res.json({
-            code: CONFIG_MESSAGE_ERRORS.UNAUTHORIZED.status,
+        return res.status(CONFIG_MESSAGE_ERRORS.UNAUTHORIZED.status).json({
             status: "error",
-            msg: "Lỗi hệ thống."
+            msg: "Lỗi hệ thống.",
+            data: null
         })
     }
 }
 
-module.exports = { checkAuth, checkLogin }
+module.exports = { 
+    checkAuth, 
+    checkLogin 
+}
