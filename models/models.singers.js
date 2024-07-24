@@ -5,8 +5,10 @@ mongoose.plugin(slug);
 const SingerSchema = new mongoose.Schema({
     fullName: String,
     slug: { type: String, slug: "fullName", unique: true},
-    background: String,
-    avatar: String,
+    avatar: {
+        type: String,
+        default: "https://res.cloudinary.com/dfjft1zvv/image/upload/v1721645777/gnhtffxxfperpjobu9te.jpg"
+    },
     description: String,
     quantitySubcriber:{
         type: Number,

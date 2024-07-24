@@ -6,10 +6,7 @@ const MusicSchema = new mongoose.Schema({
     name: String,
     slug: { type: String, slug: "name", unique: true},
     urlMp3: String,
-    lyrics: {
-        content: String,
-        scroll: Boolean
-    },
+    lyrics: String,
     background: String,
     avatar: String,
     description: String,
@@ -19,7 +16,7 @@ const MusicSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
-    album: Array,
+    album: String,
     musicType: Array,
     deleted: {
         type: Boolean,
