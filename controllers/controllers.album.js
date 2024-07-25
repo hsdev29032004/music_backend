@@ -78,7 +78,7 @@ module.exports.createAlbum = async (req, res) => {
     }
 }
 
-// Delete: /api/album/delete/:id
+// DELETE: /api/album/delete/:id
 module.exports.deleteAlbum = async (req, res) => {
   try {
     const { id } = req.params;
@@ -108,4 +108,41 @@ module.exports.deleteAlbum = async (req, res) => {
       data: `Không tồn tại album có id ${error.value}`
     });
   }
+};
+
+// PATCH: /api/album/edit/:id
+module.exports.editAlbum = async (req, res) => {
+    try {
+        let { name, singerId, avatar, music } = req.body
+        let newAlbum = {}
+        newAlbum.name = name
+        newAlbum.singerId = singerId
+        newAlbum.music = music ? music.split(',').map(id => id.trim()) : []
+        if(avatar){
+            newAlbum.avatar=avatar
+        }
+        const record = await Album.findOne({ _id: req.params.id })
+        if (!record) {
+            return res.status(CONFIG_MESSAGE_ERRORS.INVALID.status).json({
+              status: "error",
+              msg: "Không tồn tại album",
+              data: null
+            });
+        }
+        await Album.updateOne(
+            {_id: req.params.id}, 
+            newAlbum
+        )
+        res.status(CONFIG_MESSAGE_ERRORS.ACTION_SUCCESS.status).json({
+            status: "success",
+            msg: "Cập nhật album thành công",
+            data: null
+        })
+    } catch (error) {
+      res.status(CONFIG_MESSAGE_ERRORS.INTERNAL_ERROR.status).json({
+        status: "error",
+        msg: "Không thể thực hiện yêu cầu.",
+        data: `Không tồn tại album có id ${error.value}`
+      });
+    }
 };

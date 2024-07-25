@@ -15,37 +15,69 @@ router.get("/", controller.getListAlbum)
 router.get("/:id", controller.getOneAlbum)
 
 router.post(
-    "/create", 
-    authMiddlewares.checkLogin, 
-    authMiddlewares.checkAuth(ROLE_SYSTEM.ADMIN),
-    upload.single("avatar"),
-    async (req, res, next) => {
-        if (!req.file || !req.body.name || !req.body.singerId) {
-          return res.status(CONFIG_MESSAGE_ERRORS.INVALID.status).json({
-            status: "error",
-            msg: `Có trường bắt buộc chưa được nhập`,
-            data: null
-          })
-        }
-      
-        try {
-          const result = await addImage(req.file.buffer); // Sử dụng hàm helper để upload ảnh
-          req.body.avatar = result.secure_url; // Lưu URL Cloudinary vào req.file
-          next();
-        } catch (error) {
-          return res.status(CONFIG_MESSAGE_ERRORS.INTERNAL_ERROR.status).json({
-            status: "error",
-            msg: "Lỗi hệ thống này",
-            data: null
-          })
-        }
-      },
-    controller.createAlbum
+  "/create",
+  authMiddlewares.checkLogin,
+  authMiddlewares.checkAuth(ROLE_SYSTEM.ADMIN),
+  upload.single("avatar"),
+  async (req, res, next) => {
+    if (!req.file || !req.body.name || !req.body.singerId) {
+      return res.status(CONFIG_MESSAGE_ERRORS.INVALID.status).json({
+        status: "error",
+        msg: `Có trường bắt buộc chưa được nhập`,
+        data: null
+      })
+    }
+
+    try {
+      const result = await addImage(req.file.buffer);
+      req.body.avatar = result.secure_url;
+      next();
+    } catch (error) {
+      return res.status(CONFIG_MESSAGE_ERRORS.INTERNAL_ERROR.status).json({
+        status: "error",
+        msg: "Lỗi hệ thống",
+        data: null
+      })
+    }
+  },
+  controller.createAlbum
 )
+
+router.patch(
+  "/edit/:id",
+  authMiddlewares.checkLogin,
+  authMiddlewares.checkAuth(ROLE_SYSTEM.ADMIN),
+  upload.single("avatar"),
+  async (req, res, next) => {
+    if (!req.body.name || !req.body.singerId) {
+      return res.status(CONFIG_MESSAGE_ERRORS.INVALID.status).json({
+        status: "error",
+        msg: `Có trường bắt buộc chưa được nhập`,
+        data: null
+      })
+    }
+    if(!req.file){
+      return next()
+    }
+    try {
+      const result = await addImage(req.file.buffer);
+      req.body.avatar = result.secure_url;
+      next();
+    } catch (error) {
+      return res.status(CONFIG_MESSAGE_ERRORS.INTERNAL_ERROR.status).json({
+        status: "error",
+        msg: "Lỗi hệ thống",
+        data: null
+      })
+    }
+  },
+  controller.editAlbum
+)
+
 
 router.delete(
   "/delete/:id",
-  authMiddlewares.checkLogin, 
+  authMiddlewares.checkLogin,
   authMiddlewares.checkAuth(ROLE_SYSTEM.ADMIN),
   controller.deleteAlbum
 )
