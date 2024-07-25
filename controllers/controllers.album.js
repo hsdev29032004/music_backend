@@ -1,16 +1,17 @@
 const { CONFIG_MESSAGE_ERRORS } = require("../config/error.js")
 const Album = require("../models/models.albums.js")
+const { deleteImage } = require ("../helper/cloudinary.js")
 
 // GET: /api/album?query
 module.exports.getListAlbum = async (req, res) => {
     try {
-        let {singerId, name} = req.query
+        let { singerId, name } = req.query
         name = new RegExp(name, "i")
         let query = {}
-        if(singerId){
+        if (singerId) {
             query.singerId = singerId
         }
-        if(name){
+        if (name) {
             query.name = name
         }
         const album = await Album.find(query)
@@ -53,8 +54,7 @@ module.exports.getOneAlbum = async (req, res) => {
 // POST: /api/album/create
 module.exports.createAlbum = async (req, res) => {
     try {
-        let {name, singerId, music} = req.body
-        const avatar = req.file ? req.file.cloudinary_url : null; // Chỗ này thay null bằng ảnh mặc định
+        let { name, singerId, avatar, music } = req.body
         const arrMusic = music ? music.split(',').map(id => id.trim()) : []
         const record = new Album({
             name,
@@ -77,3 +77,35 @@ module.exports.createAlbum = async (req, res) => {
         });
     }
 }
+
+// Delete: /api/album/delete/:id
+module.exports.deleteAlbum = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const record = await Album.findOne({ _id: id }).select("avatar");
+    if (!record) {
+      return res.status(CONFIG_MESSAGE_ERRORS.INVALID.status).json({
+        status: "error",
+        msg: "Không tồn tại album",
+        data: null
+      });
+    }
+
+    await Album.deleteOne({ _id: id });
+
+    await deleteImage(record.avatar);
+
+    res.status(CONFIG_MESSAGE_ERRORS.ACTION_SUCCESS.status).json({
+      status: "success",
+      msg: "Xóa album thành công",
+      data: null
+    });
+  } catch (error) {
+    res.status(CONFIG_MESSAGE_ERRORS.INTERNAL_ERROR.status).json({
+      status: "error",
+      msg: "Không thể thực hiện yêu cầu.",
+      data: `Không tồn tại album có id ${error.value}`
+    });
+  }
+};

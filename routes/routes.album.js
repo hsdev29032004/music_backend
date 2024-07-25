@@ -23,14 +23,14 @@ router.post(
         if (!req.file || !req.body.name || !req.body.singerId) {
           return res.status(CONFIG_MESSAGE_ERRORS.INVALID.status).json({
             status: "error",
-            msg: "Có trường bắt buộc chưa được nhập",
+            msg: `Có trường bắt buộc chưa được nhập`,
             data: null
           })
         }
       
         try {
           const result = await addImage(req.file.buffer); // Sử dụng hàm helper để upload ảnh
-          req.file.cloudinary_url = result.secure_url; // Lưu URL Cloudinary vào req.file
+          req.body.avatar = result.secure_url; // Lưu URL Cloudinary vào req.file
           next();
         } catch (error) {
           return res.status(CONFIG_MESSAGE_ERRORS.INTERNAL_ERROR.status).json({
@@ -41,6 +41,13 @@ router.post(
         }
       },
     controller.createAlbum
+)
+
+router.delete(
+  "/delete/:id",
+  authMiddlewares.checkLogin, 
+  authMiddlewares.checkAuth(ROLE_SYSTEM.ADMIN),
+  controller.deleteAlbum
 )
 
 module.exports = router

@@ -7,7 +7,7 @@ cloudinary.config({
     api_secret: process.env.API_SECRET
 });
 
-function uploadToCloudinary(buffer, folder) {
+const uploadToCloudinary = async (buffer, folder) => {
     return new Promise((resolve, reject) => {
         const stream = cloudinary.uploader.upload_stream({ folder: folder }, (error, result) => {
             if (result) {
@@ -20,14 +20,13 @@ function uploadToCloudinary(buffer, folder) {
     });
 }
 
-function getPublicId(url) {
-    // Tách publicId từ URL Cloudinary
-    const regex = /\/v\d+\/([^\/]+)\.(jpg|png|jpeg|mp3)$/;
+const getPublicId = (url) => {
+    const regex = /\/(?:v\d+\/)?([^\/]+)\.[a-zA-Z]+$/;
     const match = url.match(regex);
     return match ? match[1] : null;
 }
 
-async function addImage(buffer) {
+const addImage = async (buffer) => {
     try {
         const result = await uploadToCloudinary(buffer, 'images');
         return result;
@@ -37,7 +36,7 @@ async function addImage(buffer) {
     }
 }
 
-async function addImages(files) {
+const addImages = async (files) => {
     try {
         const uploadPromises = files.map(file => uploadToCloudinary(file.buffer, 'images'));
         const results = await Promise.all(uploadPromises);
@@ -48,7 +47,7 @@ async function addImages(files) {
     }
 }
 
-async function addMp3(buffer) {
+const addMp3 = async (buffer) => {
     try {
         const result = await uploadToCloudinary(buffer, 'mp3');
         return result;
@@ -58,18 +57,22 @@ async function addMp3(buffer) {
     }
 }
 
-async function deleteImage(url) {
-    try {
-        const publicId = getPublicId(url)
-        const result = await cloudinary.uploader.destroy(publicId);
-        return result;
-    } catch (error) {
-        console.error(error);
-        throw error;
+const deleteImage = async (url) => {
+  try {
+    let publicId = getPublicId(url);
+    if (!publicId) {
+      throw new Error('Public ID không hợp lệ hoặc không được trích xuất');
     }
+    publicId = `images/` + publicId 
+    const result = await cloudinary.uploader.destroy(publicId, { resource_type: 'image' });
+    return result;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
 }
 
-async function deleteImages(urls) {
+const deleteImages = async (urls) => {
     try {
         const publicIds = getPublicId(urls)
         const deletePromises = publicIds.map(publicId => cloudinary.uploader.destroy(publicId));
@@ -81,7 +84,7 @@ async function deleteImages(urls) {
     }
 }
 
-async function deleteMp3(url) {
+const deleteMp3 = async (url) => {
     try {
         const publicId = getPublicId(url)
         const result = await cloudinary.uploader.destroy(publicId);
