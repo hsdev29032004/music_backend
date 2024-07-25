@@ -49,3 +49,31 @@ module.exports.getOneAlbum = async (req, res) => {
         });
     }
 }
+
+// POST: /api/album/create
+module.exports.createAlbum = async (req, res) => {
+    try {
+        let {name, singerId, music} = req.body
+        const avatar = req.file ? req.file.cloudinary_url : null; // Chỗ này thay null bằng ảnh mặc định
+        const arrMusic = music ? music.split(',').map(id => id.trim()) : []
+        const record = new Album({
+            name,
+            avatar,
+            singerId,
+            music: arrMusic
+        })
+        await record.save()
+        res.status(CONFIG_MESSAGE_ERRORS.ACTION_SUCCESS.status).json({
+            status: "success",
+            msg: "Tạo album thành công",
+            data: record
+        })
+    }
+    catch (error) {
+        res.status(CONFIG_MESSAGE_ERRORS.INTERNAL_ERROR.status).json({
+            status: "error",
+            msg: "Lỗi hệ thống.",
+            data: error
+        });
+    }
+}
