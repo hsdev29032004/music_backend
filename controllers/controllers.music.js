@@ -7,16 +7,14 @@ module.exports.getListMusic = async (req, res) => {
     try {
         let keyword = new RegExp(req.query.keyword, "i");
 
-        // Tìm kiếm bài hát theo tên và lời bài hát
-        const nameResults = await Music.find({ name: keyword })
-            .populate('singerId')  // Populate thông tin ca sĩ chính
-            .populate('otherSingersId');  // Populate thông tin ca sĩ khác
+        const nameResults = await Music.find({ name: keyword, deleted: false })
+            .populate('singerId')
+            .populate('otherSingersId');
 
-        const lyricsResults = await Music.find({ lyrics: keyword })
-            .populate('singerId')  // Populate thông tin ca sĩ chính
-            .populate('otherSingersId');  // Populate thông tin ca sĩ khác
+        const lyricsResults = await Music.find({ lyrics: keyword, deleted: false })
+            .populate('singerId')
+            .populate('otherSingersId');
 
-        // Kết hợp và lọc kết quả để loại bỏ bản sao
         const allResults = [...nameResults, ...lyricsResults];
         const uniqueResults = allResults.reduce((acc, current) => {
             const x = acc.find(item => item._id.toString() === current._id.toString());
@@ -24,20 +22,56 @@ module.exports.getListMusic = async (req, res) => {
             return acc;
         }, []);
 
-        // Trả về kết quả
         res.status(CONFIG_MESSAGE_ERRORS.GET_SUCCESS.status).json({
             status: "success",
             msg: "Tìm list bài hát thành công",
             data: uniqueResults
         });
     } catch (error) {
-        // Log chi tiết lỗi
-        console.error("Error in getListMusic:", error);
-
         res.status(CONFIG_MESSAGE_ERRORS.INTERNAL_ERROR.status).json({
             status: "error",
             msg: "Lỗi hệ thống.",
-            error: error.message  // Trả về thông báo lỗi chi tiết
+            data: error.message
         });
     }
 };
+
+// GET: /api/music/:slug
+module.exports.getOneMusic = async (req, res) => {
+    try {
+        const { slug } = req.params
+        const music = await Music.findOne({
+            slug: slug,
+            deleted: false
+        })
+        res.status(CONFIG_MESSAGE_ERRORS.GET_SUCCESS.status).json({
+            status: "success",
+            msg: "Lấy bài hát thành công",
+            data: music
+        })
+    } catch (error) {
+        res.status(CONFIG_MESSAGE_ERRORS.INTERNAL_ERROR.status).json({
+            status: "error",
+            msg: "Lỗi hệ thống.",
+            data: error.message
+        });
+    }
+}
+
+// PATCH: /api/music/delete/:id
+module.exports.deleteOneMusic = async (req, res) => {
+    try {
+        await Music.updateOne({_id: req.params.id}, {deleted: true})
+        res.status(CONFIG_MESSAGE_ERRORS.ACTION_SUCCESS.status).json({
+            status: "success",
+            msg: "Xóa bài hát thành công",
+            data: null
+        })
+    } catch (error) {
+        res.status(CONFIG_MESSAGE_ERRORS.INTERNAL_ERROR.status).json({
+            status: "error",
+            msg: "Lỗi hệ thống.",
+            data: error.message
+        });
+    }
+}
