@@ -1,7 +1,11 @@
 const CONFIG_MESSAGE_ERRORS = require("../config/error.js")
-const System = require("../models/models.system.js")
+const Music = require("../models/models.musics.js")
 
-module.exports.index = async (req, res) => {
-    const system = await System.find({})
-    res.status(200).json(system)
+// GET: /api/music?query=
+module.exports.getListMusic = async (req, res) => {
+    // const {name, singerId, }
+    const music = await Music.find({
+        deleted: false
+    })
+    res.status(200).json(music)
 }

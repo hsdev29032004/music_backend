@@ -6,8 +6,15 @@ const PlaylistSchema = new mongoose.Schema({
         type: String,
         default: "" // Điền url ảnh nếu không có avt, nếu có bài hát thì lấy avt bài hát đầu tiên        
     },
-    userId: String,
-    music: Array,
+    userId: { 
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'User' 
+    },
+    music: [{ 
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'Music',
+        default: []
+    }],
 })
 
 const Playlist = mongoose.model("Playlist", PlaylistSchema, "playlists")

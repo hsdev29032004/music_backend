@@ -56,7 +56,7 @@ router.patch(
         data: null
       })
     }
-    if(!req.file){
+    if (!req.file) {
       return next()
     }
     try {
@@ -73,7 +73,6 @@ router.patch(
   },
   controller.editAlbum
 )
-
 
 router.delete(
   "/delete/:id",

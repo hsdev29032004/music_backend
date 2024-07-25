@@ -17,18 +17,21 @@ const UserSchema = new mongoose.Schema({
         type: String,
         default: "https://res.cloudinary.com/dfjft1zvv/image/upload/v1721645777/gnhtffxxfperpjobu9te.jpg"
     },
-    likedMusic: {
-        type: Array,
+    likedMusic: [{ 
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'Music',
+        default: [] 
+    }],
+    subcribedSinger: [{ 
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'Singer',
         default: []
-    },
-    subcribedSinger: {
-        type: Array,
+    }],
+    likedAlbum: [{ 
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'Album',
         default: []
-    },
-    likedAlbum: {
-        type: Array,
-        default: []
-    }
+    }]
 }, {
     timestamps: true
 })
