@@ -1,12 +1,16 @@
 const randomHelper = require("../helper/random");
 
 const convert = (s) => {
+    const input = 'àáảãạăắằẳẵặâấầẩẫậèéẻẽẹêếềểễệìíỉĩịòóỏõọôốồổỗộơớờởỡợùúủũụưứừửữựỳýỷỹỵđ';
+    const output = 'aaaaaaaaaaaaaaaaaeeeeeeeeiiiiooooooooooooooooouuuuuuuuuuuyyyyyd';
     return s
         .toLowerCase()
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .replace(/đ/g, 'd')
-        .toLowerCase();
+        .split('')
+        .map(char => {
+            const index = input.indexOf(char);
+            return index !== -1 ? output[index] : char;
+        })
+        .join('');
 };
 
 const slug = (s) => {

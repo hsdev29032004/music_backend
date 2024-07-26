@@ -12,7 +12,7 @@ const upload = multer({ storage: storage });
 
 router.get("/", controller.getListAlbum)
 
-router.get("/:id", controller.getOneAlbum)
+router.get("/:slug", controller.getOneAlbum)
 
 router.post(
   "/create",
@@ -25,23 +25,24 @@ router.post(
         status: "error",
         msg: `Có trường bắt buộc chưa được nhập`,
         data: null
-      })
+      });
     }
 
     try {
       const result = await addImage(req.file.buffer);
-      req.body.avatar = result.secure_url;
+      console.log("Cloudinary upload result:", result);
+      req.body.avatar = result;
       next();
     } catch (error) {
       return res.status(CONFIG_MESSAGE_ERRORS.INTERNAL_ERROR.status).json({
         status: "error",
         msg: "Lỗi hệ thống",
         data: null
-      })
+      });
     }
   },
   controller.createAlbum
-)
+);
 
 router.patch(
   "/edit/:id",
@@ -61,7 +62,7 @@ router.patch(
     }
     try {
       const result = await addImage(req.file.buffer);
-      req.body.avatar = result.secure_url;
+      req.body.avatar = result;
       next();
     } catch (error) {
       return res.status(CONFIG_MESSAGE_ERRORS.INTERNAL_ERROR.status).json({

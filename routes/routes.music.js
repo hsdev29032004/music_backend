@@ -28,4 +28,12 @@ router.post(
     controller.createMusic
 )
 
+router.patch(
+    "/edit/:id",
+    authMiddlewares.checkLogin,
+    authMiddlewares.checkAuth(ROLE_SYSTEM.ADMIN),
+    upload.fields([{ name: 'avatar' }, { name: 'urlMp3' }]),
+    controller.editMusic
+)
+
 module.exports = router

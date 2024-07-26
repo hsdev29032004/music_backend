@@ -1,20 +1,18 @@
 const { CONFIG_MESSAGE_ERRORS } = require("../config/error.js")
 const Album = require("../models/models.albums.js")
 const { deleteImage } = require ("../helper/cloudinary.js")
+const slugHelper = require("../helper/slug.js");
 
-// GET: /api/album?query
+// GET: /api/album?keyword=
 module.exports.getListAlbum = async (req, res) => {
     try {
-        let { singerId, name } = req.query
-        name = new RegExp(name, "i")
-        let query = {}
-        if (singerId) {
-            query.singerId = singerId
-        }
-        if (name) {
-            query.name = name
-        }
-        const album = await Album.find(query)
+        let { keyword } = req.query
+        keyword = slugHelper.slug(keyword)
+        keyword = new RegExp(keyword.slice(0, -11), "i")
+
+        const album = await Album.find({
+            slug: keyword
+        })
         res.status(CONFIG_MESSAGE_ERRORS.GET_SUCCESS.status).json({
             status: "success",
             msg: "Lấy danh sách album thành công",
@@ -29,12 +27,13 @@ module.exports.getListAlbum = async (req, res) => {
     }
 }
 
-// GET: /api/album/:id
+// GET: /api/album/:slug
 module.exports.getOneAlbum = async (req, res) => {
     try {
-        const { id } = req.params
+        const { slug } = req.params
+        console.log(slug);
         const album = await Album.findOne({
-            _id: id
+            slug
         })
         res.status(CONFIG_MESSAGE_ERRORS.GET_SUCCESS.status).json({
             status: "success",
@@ -60,7 +59,8 @@ module.exports.createAlbum = async (req, res) => {
             name,
             avatar,
             singerId,
-            music: arrMusic
+            music: arrMusic,
+            slug: slugHelper.slug(name)
         })
         await record.save()
         res.status(CONFIG_MESSAGE_ERRORS.ACTION_SUCCESS.status).json({
@@ -114,10 +114,12 @@ module.exports.deleteAlbum = async (req, res) => {
 module.exports.editAlbum = async (req, res) => {
     try {
         let { name, singerId, avatar, music } = req.body
-        let newAlbum = {}
-        newAlbum.name = name
-        newAlbum.singerId = singerId
-        newAlbum.music = music ? music.split(',').map(id => id.trim()) : []
+        let newAlbum = {
+            name,
+            singerId,
+            music: music ? music.split(',').map(id => id.trim()) : [],
+            slug: slugHelper.slug(name)
+        }
         if(avatar){
             newAlbum.avatar=avatar
         }

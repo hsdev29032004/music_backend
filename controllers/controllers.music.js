@@ -3,18 +3,21 @@ const Music = require("../models/models.musics.js");
 const Singer = require("../models/models.singers.js");
 const checkPremium = require("../helper/checkPremium.js")
 const { addImage, addMp3} = require("../helper/cloudinary.js")
-const slugHelper = require("../helper/slug.js")
+const slugHelper = require("../helper/slug.js");
+const Album = require("../models/models.albums.js");
 
 // GET: /api/music?keyword=
 module.exports.getListMusic = async (req, res) => {
     try {
-        let keyword = new RegExp(req.query.keyword, "i");
+        let keyword = slugHelper.slug(req.query.keyword)
+        keyword = new RegExp(keyword.slice(0, -11), "i");
+        let regexLyric = new RegExp(req.query.keyword, "i");
 
-        const nameResults = await Music.find({ name: keyword, deleted: false })
+        const nameResults = await Music.find({ slug: keyword, deleted: false })
             .populate('singerId')
             .populate('otherSingersId');
 
-        const lyricsResults = await Music.find({ lyrics: keyword, deleted: false })
+        const lyricsResults = await Music.find({ lyrics: regexLyric, deleted: false })
             .populate('singerId')
             .populate('otherSingersId');
 
@@ -30,9 +33,7 @@ module.exports.getListMusic = async (req, res) => {
         if(!isPremium){
             uniqueResults.forEach(item => {
                 if(item.premium){
-                    item.urlMp3 = "https://res.cloudinary.com/dfjft1zvv/video/upload/v1721927244/n9ujjl017jhim7j6gevz.m4a",
-                    item.lyrics = ""
-                    console.log(item.urlMp3);
+                    item.urlMp3 = "https://res.cloudinary.com/dfjft1zvv/video/upload/v1721927244/n9ujjl017jhim7j6gevz.m4a"
                 }
             })
         }
@@ -123,6 +124,7 @@ module.exports.createMusic = async (req, res) => {
                 data: null
             })
         }
+        const arrOtherSingerIds = otherSingersId ? otherSingersId.split(',').map(id => id.trim()) : []
         const avatarUrl = await addImage(req.files.avatar[0].buffer);
         const mp3Url = await addMp3(req.files.urlMp3[0].buffer);
         let slug = slugHelper.slug(name)
@@ -132,7 +134,7 @@ module.exports.createMusic = async (req, res) => {
             lyrics,
             description,
             singerId,
-            otherSingersId,
+            otherSingersId: arrOtherSingerIds,
             album,
             musicType,
             premium,
@@ -147,7 +149,6 @@ module.exports.createMusic = async (req, res) => {
             data: newMusic 
         });
     } catch (error) {
-        console.error(error);
         res.status(CONFIG_MESSAGE_ERRORS.INTERNAL_ERROR.status).json({ 
             status: "error",
             message: 'Lỗi hệ thống.',
@@ -155,3 +156,65 @@ module.exports.createMusic = async (req, res) => {
         });
     }
 }
+
+// PATCH: /api/music/edit/:id
+module.exports.editMusic = async (req, res) => {
+    try {
+        const { name, lyrics, description, singerId, otherSingersId, album, musicType, premium } = req.body;
+        const arrOtherSingerIds = otherSingersId ? otherSingersId.split(',').map(id => id.trim()) : [];
+        const arrMusicType = musicType ? musicType.split(',').map(id => id.trim()) : [];
+
+        if (!name || !lyrics || !singerId) {
+            return res.status(CONFIG_MESSAGE_ERRORS.INVALID.status).json({
+                status: "error",
+                msg: "Tồn tại trường bắt buộc chưa được nhập",
+                data: null
+            });
+        }
+
+        let newMusic = {
+            name: name,
+            lyrics: lyrics,
+            singerId: singerId,
+            slug: slugHelper.slug(name)
+        };
+
+        if (arrOtherSingerIds.length > 0) newMusic.otherSingersId = arrOtherSingerIds;
+        if (description) newMusic.description = description;
+        if (album) newMusic.album = album;
+        if (arrMusicType.length > 0) newMusic.musicType = arrMusicType;
+        if (typeof premium === "boolean") newMusic.premium = premium;
+
+        if (req.files && req.files.avatar && req.files.avatar[0]) {
+            const url = await addImage(req.files.avatar[0].buffer);
+            newMusic.avatar = url;
+        }
+
+        if (req.files && req.files.urlMp3 && req.files.urlMp3[0]) {
+            const url = await addMp3(req.files.urlMp3[0].buffer);
+            newMusic.urlMp3 = url;
+        }
+
+        const result = await Music.updateOne({ _id: req.params.id }, newMusic);
+        
+        if (result.nModified === 0) {
+            return res.status(CONFIG_MESSAGE_ERRORS.NOT_FOUND.status).json({
+                status: "error",
+                msg: "Không tìm thấy bài hát để cập nhật",
+                data: null
+            });
+        }
+
+        res.status(200).json({
+            status: "success",
+            msg: "Cập nhật bài hát thành công",
+            data: newMusic
+        });
+    } catch (error) {
+        res.status(CONFIG_MESSAGE_ERRORS.INTERNAL_ERROR.status).json({
+            status: "error",
+            message: 'Lỗi hệ thống.',
+            data: error.message
+        });
+    }
+};
