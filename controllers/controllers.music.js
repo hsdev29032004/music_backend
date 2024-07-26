@@ -9,7 +9,7 @@ const Album = require("../models/models.albums.js");
 // GET: /api/music?keyword=
 module.exports.getListMusic = async (req, res) => {
     try {
-        let keyword = slugHelper.slug(req.query.keyword)
+        let keyword = slugHelper.slug(req.query.keyword || "")
         keyword = new RegExp(keyword.slice(0, -11), "i");
         let regexLyric = new RegExp(req.query.keyword, "i");
 

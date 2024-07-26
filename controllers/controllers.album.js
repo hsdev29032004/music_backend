@@ -6,8 +6,7 @@ const slugHelper = require("../helper/slug.js");
 // GET: /api/album?keyword=
 module.exports.getListAlbum = async (req, res) => {
     try {
-        let { keyword } = req.query
-        keyword = slugHelper.slug(keyword)
+        keyword = slugHelper.slug(req.query.keyword || "")
         keyword = new RegExp(keyword.slice(0, -11), "i")
 
         const album = await Album.find({

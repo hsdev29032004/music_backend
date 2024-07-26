@@ -14,7 +14,7 @@ const convert = (s) => {
 };
 
 const slug = (s) => {
-    let res = convert(s)
+    let res = convert(s.toString())
     
     res = res.replace(/[^a-z0-9\s]/g, '-');
     res = res.replace(/\s+/g, '-');
