@@ -2,6 +2,7 @@ const mongoose = require("mongoose")
 
 const PlaylistSchema = new mongoose.Schema({
     name: String,
+    slug: String,
     avatar: {
         type: String,
         default: "" // Điền url ảnh nếu không có avt, nếu có bài hát thì lấy avt bài hát đầu tiên        

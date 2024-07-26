@@ -2,6 +2,7 @@ const mongoose = require("mongoose")
 
 const MusicTypeSchema = new mongoose.Schema({
     name: String,
+    slug: String,
     avatar: String
 })
 

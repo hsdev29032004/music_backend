@@ -1,16 +1,20 @@
 const mongoose = require("mongoose");
-const slug = require('mongoose-slug-updater');
-mongoose.plugin(slug);
 
 const MusicSchema = new mongoose.Schema({
     name: String,
-    slug: { type: String, slug: "name", unique: true },
+    slug: String,
     urlMp3: String,
     lyrics: String,
-    background: String,
+    background: {
+        type: String,
+        default: "https://wallpapercave.com/wp/wp5595374.jpg"
+    },
     avatar: String,
     description: String,
-    singerId: { type: mongoose.Schema.Types.ObjectId, ref: 'Singer' },
+    singerId: { 
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'Singer' 
+    },
     otherSingersId: [{ 
         type: mongoose.Schema.Types.ObjectId, 
         ref: 'Singer',
@@ -20,9 +24,20 @@ const MusicSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
-    album: String,
-    musicType: Array,
+    album: { 
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'Album' 
+    },
+    musicType: [{ 
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'Singer',
+        default: [] 
+    }],
     deleted: {
+        type: Boolean,
+        default: false
+    },
+    premium: {
         type: Boolean,
         default: false
     }

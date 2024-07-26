@@ -1,10 +1,8 @@
 const mongoose = require("mongoose")
-const slug = require('mongoose-slug-updater');
-mongoose.plugin(slug);
 
 const SingerSchema = new mongoose.Schema({
     fullName: String,
-    slug: { type: String, slug: "fullName", unique: true},
+    slug: String,
     avatar: {
         type: String,
         default: "https://res.cloudinary.com/dfjft1zvv/image/upload/v1721645777/gnhtffxxfperpjobu9te.jpg"

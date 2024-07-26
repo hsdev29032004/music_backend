@@ -7,11 +7,11 @@ cloudinary.config({
     api_secret: process.env.API_SECRET
 });
 
-const uploadToCloudinary = async (buffer, folder) => {
+const uploadToCloudinary = async (buffer, folder, resourceType = 'auto') => {
     return new Promise((resolve, reject) => {
-        const stream = cloudinary.uploader.upload_stream({ folder: folder }, (error, result) => {
+        const stream = cloudinary.uploader.upload_stream({ folder: folder, resource_type: resourceType }, (error, result) => {
             if (result) {
-                resolve(result);
+                resolve(result.url);;
             } else {
                 reject(error);
             }
@@ -19,6 +19,7 @@ const uploadToCloudinary = async (buffer, folder) => {
         streamifier.createReadStream(buffer).pipe(stream);
     });
 }
+
 
 const getPublicId = (url) => {
     const regex = /\/(?:v\d+\/)?([^\/]+)\.[a-zA-Z]+$/;
@@ -28,7 +29,7 @@ const getPublicId = (url) => {
 
 const addImage = async (buffer) => {
     try {
-        const result = await uploadToCloudinary(buffer, 'images');
+        const result = await uploadToCloudinary(buffer, 'images', 'image');
         return result;
     } catch (error) {
         console.error(error);
@@ -49,7 +50,7 @@ const addImages = async (files) => {
 
 const addMp3 = async (buffer) => {
     try {
-        const result = await uploadToCloudinary(buffer, 'mp3');
+        const result = await uploadToCloudinary(buffer, 'mp3', 'video');
         return result;
     } catch (error) {
         console.error(error);
