@@ -5,10 +5,7 @@ const CommentSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId, 
         ref: 'User' 
     },
-    musicId: { 
-        type: mongoose.Schema.Types.ObjectId, 
-        ref: 'Music' 
-    },
+    musicId: String,
     content: String,
 },{
     timestamps: true
