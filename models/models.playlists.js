@@ -5,12 +5,9 @@ const PlaylistSchema = new mongoose.Schema({
     slug: String,
     avatar: {
         type: String,
-        default: "" // Điền url ảnh nếu không có avt, nếu có bài hát thì lấy avt bài hát đầu tiên        
+        default: "https://photo-zmp3.zmdcdn.me/album_default.png"
     },
-    userId: { 
-        type: mongoose.Schema.Types.ObjectId, 
-        ref: 'User' 
-    },
+    userId: String,
     music: [{ 
         type: mongoose.Schema.Types.ObjectId, 
         ref: 'Music',

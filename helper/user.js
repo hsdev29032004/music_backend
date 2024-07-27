@@ -1,4 +1,4 @@
-const User = require("../models/models.users")
+const User = require("../models/models.users.js")
 const { CONFIG_MESSAGE_ERRORS, ROLE_SYSTEM } = require("../config/error.js")
 
 const checkPremium = async (req, res) => {
@@ -23,4 +23,22 @@ const checkPremium = async (req, res) => {
     }
 }
 
-module.exports = checkPremium
+const checkPermission = (resId, paramId) => {
+    try {
+        if (resId != paramId) {
+            return false
+        }
+        return true
+    } catch (error) {
+        return res.status(CONFIG_MESSAGE_ERRORS.UNAUTHORIZED.status).json({
+            status: "error",
+            msg: "Lỗi hệ thống.",
+            data: null
+        })
+    }
+}
+
+module.exports = { 
+    checkPremium,
+    checkPermission
+}

@@ -1,7 +1,10 @@
 const { CONFIG_MESSAGE_ERRORS } = require("../config/error.js")
 const Album = require("../models/models.albums.js")
+const Singer = require("../models/models.singers.js")
+const Music = require("../models/models.musics.js")
 const { deleteImage } = require ("../helper/cloudinary.js")
 const slugHelper = require("../helper/slug.js");
+const user = require("../helper/user.js")
 
 // GET: /api/album?keyword=
 module.exports.getListAlbum = async (req, res) => {
@@ -29,11 +32,33 @@ module.exports.getListAlbum = async (req, res) => {
 // GET: /api/album/:slug
 module.exports.getOneAlbum = async (req, res) => {
     try {
-        const { slug } = req.params
-        console.log(slug);
         const album = await Album.findOne({
-            slug
+            slug: req.params.slug
+        }).lean()
+
+        const musics = await Music.find({
+            deleted: false,
+            album: album._id
         })
+            .populate({
+                path: 'singerId',
+                select: 'fullName'
+            })
+            .populate({
+                path: 'otherSingersId',
+                select: 'fullName'
+            });
+
+        const isPremium = await user.checkPremium(req, res);
+
+        musics.forEach(element => {
+            if(!isPremium && element.premium){
+                element.urlMp3 = "https://res.cloudinary.com/dfjft1zvv/video/upload/v1721927244/n9ujjl017jhim7j6gevz.m4a"
+            }
+        });
+        
+        album.infoMusic = musics
+
         res.status(CONFIG_MESSAGE_ERRORS.GET_SUCCESS.status).json({
             status: "success",
             msg: "Lấy album thành công",

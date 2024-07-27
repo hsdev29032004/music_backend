@@ -2,15 +2,15 @@ const { CONFIG_MESSAGE_ERRORS } = require("../config/error.js")
 const MusicType = require("../models/models.musicTypes.js")
 const Music = require("../models/models.musics.js")
 const slugHelper = require("../helper/slug.js")
+const user = require("../helper/user.js")
 const { addImage } = require("../helper/cloudinary.js")
 
 // GET: /api/music-type?keyword=
 module.exports.getListMusicType = async (req, res) => {
     try {
-        let keyword = slugHelper.slug(req.query.keyword || "")
-        keyword = new RegExp(keyword, "i")
+        keyword = slugHelper.slug(req.query.keyword || "")
+        keyword = new RegExp(keyword.slice(0, -11), "i")
         const listMusicType = await MusicType.find({
-            deleted: false,
             slug: keyword
         })
         res.status(CONFIG_MESSAGE_ERRORS.GET_SUCCESS.status).json({
@@ -33,12 +33,31 @@ module.exports.getMusicType = async (req, res) => {
         let musicType = await MusicType.findOne({
             slug: req.params.slug
         }).lean()
+        
         const musics = await Music.find({
             deleted: false,
         })
-        let music = musics.filter(item => item.musicType.includes(musicType._id));
+            .populate({
+                path: 'singerId',
+                select: 'fullName slug'
+            })
+            .populate({
+                path: 'otherSingersId',
+                select: 'fullName slug'
+            })
+            .select("name slug avatar singerId musicType")
+
+        let arrMusic = musics.filter(item => item.musicType.includes(musicType._id));
+
+        const isPremium = await user.checkPremium(req, res);
+
+        arrMusic.forEach(element => {
+            if(!isPremium && element.premium){
+                element.urlMp3 = "https://res.cloudinary.com/dfjft1zvv/video/upload/v1721927244/n9ujjl017jhim7j6gevz.m4a"
+            }
+        });
         
-        musicType.infoMusic = music
+        musicType.infoMusic = arrMusic
 
         res.status(CONFIG_MESSAGE_ERRORS.GET_SUCCESS.status).json({
             status: "success",

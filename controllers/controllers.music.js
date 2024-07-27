@@ -1,10 +1,8 @@
 const { CONFIG_MESSAGE_ERRORS } = require("../config/error.js");
 const Music = require("../models/models.musics.js");
-const Singer = require("../models/models.singers.js");
-const checkPremium = require("../helper/checkPremium.js")
+const user = require("../helper/user.js")
 const { addImage, addMp3} = require("../helper/cloudinary.js")
 const slugHelper = require("../helper/slug.js");
-const Album = require("../models/models.albums.js");
 
 // GET: /api/music?keyword=
 module.exports.getListMusic = async (req, res) => {
@@ -28,7 +26,7 @@ module.exports.getListMusic = async (req, res) => {
             return acc;
         }, []);
 
-        const isPremium = await checkPremium(req, res);
+        const isPremium = await user.checkPremium(req, res);
 
         if(!isPremium){
             uniqueResults.forEach(item => {
@@ -60,11 +58,10 @@ module.exports.getOneMusic = async (req, res) => {
             deleted: false
         })
 
-        const isPremium = await checkPremium(req, res);
+        const isPremium = await user.checkPremium(req, res);
 
         if(!isPremium && music.premium){
-            music.urlMp3 = "https://res.cloudinary.com/dfjft1zvv/video/upload/v1721927244/n9ujjl017jhim7j6gevz.m4a",
-            music.lyrics = ""
+            music.urlMp3 = "https://res.cloudinary.com/dfjft1zvv/video/upload/v1721927244/n9ujjl017jhim7j6gevz.m4a"
         }
 
         res.status(CONFIG_MESSAGE_ERRORS.GET_SUCCESS.status).json({
