@@ -82,6 +82,46 @@ const validateRegister = (req, res, next) => {
     }
 };
 
+const validateResetPassword = (req, res, next) => {
+    try {
+        let errors = {};
+
+        if (!req.body.password ) {
+            errors.password = "Password chưa được nhập";
+        } else if (req.body.password.length < 6) {
+            errors.password = "Password phải có ít nhất 6 ký tự";
+        }
+
+        if (Object.keys(errors).length > 0) {
+            return res.status(CONFIG_MESSAGE_ERRORS.INVALID.status).json({
+                status: "error",
+                msg: "Dữ liệu không hợp lệ",
+                data: errors
+            });
+        }
+
+        if (req.body.password != req.body.repassword){
+            errors.repassword = "Mật khẩu nhập lại chưa đúng"
+        }
+
+        if (Object.keys(errors).length > 0) {
+            return res.status(CONFIG_MESSAGE_ERRORS.INVALID.status).json({
+                status: "error",
+                msg: "Dữ liệu không hợp lệ",
+                data: errors
+            });
+        }
+
+        next();
+    } catch (error) {
+        return res.status(CONFIG_MESSAGE_ERRORS.INTERNAL_ERROR.status).json({
+            status: "error",
+            msg: "Lỗi hệ thống",
+            data: null
+        });
+    }
+}
+
 const validateInput = (data, arrRequired) => {
     const missingFields = arrRequired.filter(
       field => !JSON.stringify(data[field])
@@ -92,5 +132,6 @@ const validateInput = (data, arrRequired) => {
 module.exports = {
     validateLogin,
     validateRegister,
-    validateInput
+    validateInput,
+    validateResetPassword
 };

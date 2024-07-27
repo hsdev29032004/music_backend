@@ -14,7 +14,7 @@ module.exports = (app) => {
     app.use("/api/album", albumRoute)
     app.use("/api/auth", authRoute)
     app.use("/api/comment", commentRoute)
-    app.use("/api/forgot-pasword", forgotPasswordRoute)
+    app.use("/api/forgot-password", forgotPasswordRoute)
     app.use("/api/music", musicRoute)
     app.use("/api/music-type", musicTypeRoute)
     app.use("/api/playlist", playlistRoute)
