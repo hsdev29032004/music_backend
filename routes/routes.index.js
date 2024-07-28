@@ -8,7 +8,7 @@ const playlistRoute = require("./routes.playlist.js")
 const singerRoute = require("./routes.singer.js")
 const systemRoute = require("./routes.system.js")
 const userRoute = require("./routes.user.js")
-// const = require("./routes.")
+const favoriteRoute = require("./routes.favorite.js")
 
 module.exports = (app) => {
     app.use("/api/album", albumRoute)
@@ -21,4 +21,5 @@ module.exports = (app) => {
     app.use("/api/singer", singerRoute)
     app.use("/api/system", systemRoute)
     app.use("/api/user", userRoute)
+    app.use("/api/favorite", favoriteRoute)
 }
