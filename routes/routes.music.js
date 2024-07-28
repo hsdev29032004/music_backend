@@ -43,4 +43,16 @@ router.get(
     controller.crawlLyrics
 )
 
+router.post(
+    "/addToPlaylist/:musicId/:playlistId",
+    authMiddlewares.checkLogin,
+    controller.addToPlaylist
+)
+
+router.post(
+    "/deleteFromPlaylist/:musicId/:playlistId",
+    authMiddlewares.checkLogin,
+    controller.deleteFromPlaylist
+)
+
 module.exports = router

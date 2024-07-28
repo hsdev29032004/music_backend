@@ -1,5 +1,6 @@
 const { CONFIG_MESSAGE_ERRORS } = require("../config/error.js");
 const Music = require("../models/models.musics.js");
+const Playlist = require("../models/models.playlists.js");
 const user = require("../helper/user.js")
 const { addImage, addMp3} = require("../helper/cloudinary.js")
 const slugHelper = require("../helper/slug.js");
@@ -234,6 +235,124 @@ module.exports.crawlLyrics = async (req, res) => {
         res.status(CONFIG_MESSAGE_ERRORS.INTERNAL_ERROR.status).json({
             status: "error",
             message: 'Không có bài hát hoặc lỗi hệ thống, vui lòng thử lại sau.',
+            data: error.message
+        });
+    }
+}
+
+// POST: /api/music/addToPlaylist/:musicId/:playlistId
+module.exports.addToPlaylist = async (req, res) => {
+    try {
+        const { musicId, playlistId } = req.params
+
+        const playlistRecord = await Playlist.findById(playlistId)
+        if(!playlistRecord){
+            return res.status(CONFIG_MESSAGE_ERRORS.INVALID.status).json({
+                status: "error",
+                msg: "Playlist không tồn tại.",
+                data: null
+            });
+        }
+
+        const isPermit = await user.checkPermission(res.locals.user._id.toString(), playlistRecord.userId.toString());
+        if (!isPermit) {
+            return res.status(CONFIG_MESSAGE_ERRORS.INVALID.status).json({
+                status: "error",
+                msg: "Không thể thao thác.",
+                data: null
+            });
+        }
+
+        const musicRecord = await Music.findById(musicId)
+        if(!musicRecord){
+            return res.status(CONFIG_MESSAGE_ERRORS.INVALID.status).json({
+                status: "error",
+                msg: "Nhạc không tồn tại.",
+                data: null
+            });
+        }
+
+        const check = playlistRecord.music.includes(musicId);
+        if(check){
+            res.status(CONFIG_MESSAGE_ERRORS.INVALID.status).json({
+                status: "error",
+                msg: "Bài hát đã tồn tại trong playlist.",
+                data: null
+            });
+        }else{
+            playlistRecord.music.push(musicId)
+            await playlistRecord.save()
+            
+            res.status(CONFIG_MESSAGE_ERRORS.ACTION_SUCCESS.status).json({
+                status: "error",
+                msg: "Thêm bài hát vào playlist thành công.",
+                data: null
+            });
+        }
+
+    } catch (error) {
+        res.status(CONFIG_MESSAGE_ERRORS.INTERNAL_ERROR.status).json({
+            status: "error",
+            message: 'Lỗi hệ thống.',
+            data: error.message
+        });
+    }
+}
+
+// PATCH: /api/music/deleteFromPlaylist/:musicId/:playlistId
+module.exports.deleteFromPlaylist = async (req, res) => {
+    try {
+        const { musicId, playlistId } = req.params
+
+        const playlistRecord = await Playlist.findById(playlistId)
+        if(!playlistRecord){
+            return res.status(CONFIG_MESSAGE_ERRORS.INVALID.status).json({
+                status: "error",
+                msg: "Playlist không tồn tại.",
+                data: null
+            });
+        }
+
+        const isPermit = await user.checkPermission(res.locals.user._id.toString(), playlistRecord.userId.toString());
+        if (!isPermit) {
+            return res.status(CONFIG_MESSAGE_ERRORS.INVALID.status).json({
+                status: "error",
+                msg: "Không thể thao thác.",
+                data: null
+            });
+        }
+
+        const musicRecord = await Music.findById(musicId)
+        if(!musicRecord){
+            return res.status(CONFIG_MESSAGE_ERRORS.INVALID.status).json({
+                status: "error",
+                msg: "Nhạc không tồn tại.",
+                data: null
+            });
+        }
+
+        const check = playlistRecord.music.includes(musicId);
+        if(!check){
+            res.status(CONFIG_MESSAGE_ERRORS.INVALID.status).json({
+                status: "error",
+                msg: "Không thể xóa bài hát không tồn tại trong playlist.",
+                data: null
+            });
+        }else{
+            playlistRecord.music = playlistRecord.music.filter(id => id.toString() !== musicId);
+            await playlistRecord.save()
+            
+            res.status(CONFIG_MESSAGE_ERRORS.ACTION_SUCCESS.status).json({
+                status: "error",
+                msg: "Xóa bài hát khỏi playlist thành công.",
+                data: null
+            });
+        }
+
+    } catch (error) {
+        res.status(CONFIG_MESSAGE_ERRORS.INTERNAL_ERROR.status).json({
+            status: "error",
+            message: 'Lỗi hệ thống.',
             data: error.message
         });
     }
