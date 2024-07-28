@@ -36,4 +36,11 @@ router.patch(
     controller.editMusic
 )
 
+router.get(
+    "/zingmp3/crawl-lyrics",
+    authMiddlewares.checkLogin,
+    authMiddlewares.checkAuth(ROLE_SYSTEM.ADMIN),
+    controller.crawlLyrics
+)
+
 module.exports = router

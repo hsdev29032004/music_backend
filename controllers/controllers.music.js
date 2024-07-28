@@ -3,6 +3,7 @@ const Music = require("../models/models.musics.js");
 const user = require("../helper/user.js")
 const { addImage, addMp3} = require("../helper/cloudinary.js")
 const slugHelper = require("../helper/slug.js");
+const { getLyrics } = require("../helper/crawlLyricsApi.js");
 
 // GET: /api/music?keyword=
 module.exports.getListMusic = async (req, res) => {
@@ -215,3 +216,25 @@ module.exports.editMusic = async (req, res) => {
         });
     }
 };
+
+// GET: /api/music/zingmp3/crawl-lyrics
+module.exports.crawlLyrics = async (req, res) => {
+    try {
+        if(!req.body.name){
+            return res.status(CONFIG_MESSAGE_ERRORS.INVALID.status).json({
+                status: "error",
+                message: 'Chưa nhập tên bài hát.',
+                data: null
+            }); 
+        }
+        const objectLyrics = await getLyrics(req.body.name)
+        
+        res.status(CONFIG_MESSAGE_ERRORS.ACTION_SUCCESS.status).json(objectLyrics)
+    } catch (error) {
+        res.status(CONFIG_MESSAGE_ERRORS.INTERNAL_ERROR.status).json({
+            status: "error",
+            message: 'Không có bài hát hoặc lỗi hệ thống, vui lòng thử lại sau.',
+            data: error.message
+        });
+    }
+}
