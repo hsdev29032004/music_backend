@@ -2,7 +2,7 @@ const randomHelper = require("../helper/random");
 
 const convert = (s) => {
     const input = 'àáảãạăắằẳẵặâấầẩẫậèéẻẽẹêếềểễệìíỉĩịòóỏõọôốồổỗộơớờởỡợùúủũụưứừửữựỳýỷỹỵđ';
-    const output = 'aaaaaaaaaaaaaaaaaeeeeeeeeiiiiooooooooooooooooouuuuuuuuuuuyyyyyd';
+    const output = 'aaaaaaaaaaaaaaaaaeeeeeeeeeeeiiiiiooooooooooooooooouuuuuuuuuuuyyyyyd';
     return s
         .toLowerCase()
         .split('')
