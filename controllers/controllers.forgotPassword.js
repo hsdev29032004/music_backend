@@ -3,6 +3,7 @@ const ForgotPassword = require("../models/models.forgotPasswords.js")
 const User = require("../models/models.users.js")
 const randomHelper = require("../helper/random.js")
 const md5 = require("md5")
+const { sendMail } = require("../helper/sendEmail.js")
 
 // POST: api/forgot-password
 module.exports.forgot = async (req, res) => {
@@ -45,6 +46,12 @@ module.exports.forgot = async (req, res) => {
             token: randomHelper.randomToken(30)
         });
         await record.save()
+        
+        sendMail(
+            record.email,
+            "Yêu cầu lấy lại mật khẩu",
+            `Mã otp của bạn là <b>${record.otp}</b>`
+        )
 
         res.cookie("tokenReset", record.token, {
             maxAge: 3 * 60 * 1000
