@@ -2,6 +2,7 @@ const { CONFIG_MESSAGE_ERRORS } = require("../config/error.js")
 const User = require("../models/models.users.js")
 const randomHelper = require("../helper/random.js")
 const md5 = require("md5")
+const slugHelper = require("../helper/slug.js")
 
 // POST: /api/auth/register
 module.exports.registerPost = async (req, res) => {
@@ -16,11 +17,13 @@ module.exports.registerPost = async (req, res) => {
             })
         } else {
             const token = randomHelper.randomToken(30)
+            const slug = slugHelper.slug(fullName)
             const newUser = new User({
                 fullName,
                 email,
                 password: md5(password),
-                token
+                token,
+                slug
             })
             await newUser.save()
             res.cookie("token", token)
@@ -43,7 +46,7 @@ module.exports.registerPost = async (req, res) => {
 module.exports.loginPost = async (req, res) => {
     try {
         const { email, password } = req.body
-        const user = await User.findOne({ email: email })
+        const user = await User.findOne({ email: email }).select("name avatar level password token")
         if (!user) {
             return res.status(CONFIG_MESSAGE_ERRORS.INVALID.status).json({
                 status: "error",
@@ -64,7 +67,7 @@ module.exports.loginPost = async (req, res) => {
         res.status(CONFIG_MESSAGE_ERRORS.ACTION_SUCCESS.status).json({
             status: "success",
             msg: "Đăng nhập thành công",
-            data: null
+            data: user
         })
 
     } catch (error) {

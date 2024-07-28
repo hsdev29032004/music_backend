@@ -5,6 +5,7 @@ const UserSchema = new mongoose.Schema({
     email: String,
     password: String,
     token: String,
+    slug: String,
     deleted: {
         type: Boolean,
         default: false
@@ -15,7 +16,7 @@ const UserSchema = new mongoose.Schema({
     },
     avatar: {
         type: String,
-        default: "https://res.cloudinary.com/dfjft1zvv/image/upload/v1721645777/gnhtffxxfperpjobu9te.jpg"
+        default: "https://res.cloudinary.com/dfjft1zvv/image/upload/v1721808393/famcido781xorsyoazvs.jpg"
     },
     likedMusic: [{ 
         type: mongoose.Schema.Types.ObjectId, 
