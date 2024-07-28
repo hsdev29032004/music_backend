@@ -228,7 +228,7 @@ module.exports.crawlLyrics = async (req, res) => {
             }); 
         }
         const objectLyrics = await getLyrics(req.body.name)
-        
+
         res.status(CONFIG_MESSAGE_ERRORS.ACTION_SUCCESS.status).json(objectLyrics)
     } catch (error) {
         res.status(CONFIG_MESSAGE_ERRORS.INTERNAL_ERROR.status).json({

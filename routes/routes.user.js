@@ -35,4 +35,10 @@ router.patch(
     controller.changePassword
 )
 
+router.get(
+    "/library/:userId",
+    authMiddlewares.checkLogin,
+    controller.getLibrary
+)
+
 module.exports = router

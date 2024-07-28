@@ -36,6 +36,7 @@ module.exports.getUser = async (req, res) => {
         const record = await User.findOne({
             slug: req.params.slug
         })
+            .select("fullName email level avatar createdAt")
         if(!record){
             return res.status(CONFIG_MESSAGE_ERRORS.INVALID.status).json({
                 status: "error",
@@ -185,7 +186,6 @@ module.exports.changePassword = async (req, res) => {
         });
         
     } catch (error) {
-        console.error(error);
         return res.status(CONFIG_MESSAGE_ERRORS.INTERNAL_ERROR.status).json({
             status: "error",
             msg: "Lỗi hệ thống.",
@@ -193,3 +193,64 @@ module.exports.changePassword = async (req, res) => {
         });
     }
 };
+
+// GET: /api/user/library/:userId
+module.exports.getLibrary = async (req, res) => {
+    try {
+        const userId = req.params.userId
+        const record = await User.findOne({
+            _id: userId
+        })
+            .select("likedMusic likedAlbum subcribedSinger")
+            .populate({
+                path: "likedMusic",
+                select: "slug name avatar singerId otherSingersId",
+                populate: [
+                    {
+                        path: "singerId",
+                        select: "slug name"
+                    },
+                    {
+                        path: "otherSingersId",
+                        select: "slug name"
+                    }
+                ]
+            })
+            .populate({
+                path: "likedAlbum",
+                select: "slug avatar name"
+            })
+            .populate({
+                path: "subcribedSinger",
+                select: "slug fullName avatar"
+            })
+        if(!record){
+            return res.status(CONFIG_MESSAGE_ERRORS.INVALID.status).json({
+                status: "error",
+                msg: "Người dùng không tồn tại.",
+                data: null
+            });
+        }
+        
+        const isPermit = await user.checkPermission(res.locals.user._id.toString(), record._id.toString());
+        if (!isPermit) {
+            return res.status(CONFIG_MESSAGE_ERRORS.INVALID.status).json({
+                status: "error",
+                msg: "Bạn không có quyền truy cập thư viện này.",
+                data: null
+            });
+        }
+
+        res.status(CONFIG_MESSAGE_ERRORS.GET_SUCCESS.status).json({
+            status: "success",
+            msg: "Truy cập thành công",
+            data: record
+        })
+    } catch (error) {
+        return res.status(CONFIG_MESSAGE_ERRORS.INTERNAL_ERROR.status).json({
+            status: "error",
+            msg: "Lỗi hệ thống.",
+            data: error.message
+        });
+    }
+}
