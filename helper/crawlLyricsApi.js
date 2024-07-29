@@ -72,14 +72,14 @@ const getLyrics = async (musicSearch) => {
                                 });
                             } else {
                                 resolve({
-                                    status: "fail",
+                                    status: "error",
                                     msg: `Dữ liệu không đúng định dạng`,
                                     data: null
                                 });
                             }
                         } catch (error) {
                             resolve({
-                                status: "fail",
+                                status: "error",
                                 msg: `Lỗi khi phân tích dữ liệu JSON: ${error.message}`,
                                 data: null
                             });
@@ -96,7 +96,7 @@ const getLyrics = async (musicSearch) => {
                 resultData = await Promise.race([requestHandler, timeoutPromise]);
             } catch (error) {
                 resultData = {
-                    status: "fail",
+                    status: "error",
                     msg: `Lỗi: ${error.message}`,
                     data: null
                 };
@@ -105,14 +105,14 @@ const getLyrics = async (musicSearch) => {
             return resultData;
         } catch (error) {
             return{
-                status: "fail",
+                status: "error",
                 msg: "Không tìm thấy bài hát hoặc nút play.",
                 data: null
             };
         }
     } catch (error) {
         return{
-            status: "fail",
+            status: "error",
             msg: "Lỗi hệ thống",
             data: null
         };
