@@ -15,6 +15,10 @@ module.exports.getListAlbum = async (req, res) => {
         const album = await Album.find({
             slug: keyword
         })
+            .populate({
+                path: "singerId",
+                select: "slug fullName"
+            })
         res.status(CONFIG_MESSAGE_ERRORS.GET_SUCCESS.status).json({
             status: "success",
             msg: "Lấy danh sách album thành công",
@@ -34,12 +38,18 @@ module.exports.getOneAlbum = async (req, res) => {
     try {
         const album = await Album.findOne({
             slug: req.params.slug
-        }).lean()
+        })
+            .populate({
+                path: "singerId",
+                select: "fullName slug"
+            })
+            .lean()
 
         const musics = await Music.find({
             deleted: false,
             album: album._id
         })
+            .select("name slug avatar singerId otherSingersId")
             .populate({
                 path: 'singerId',
                 select: 'fullName'
@@ -47,7 +57,7 @@ module.exports.getOneAlbum = async (req, res) => {
             .populate({
                 path: 'otherSingersId',
                 select: 'fullName'
-            });
+            })
 
         const isPremium = await user.checkPremium(req, res);
 
@@ -77,13 +87,11 @@ module.exports.getOneAlbum = async (req, res) => {
 // POST: /api/album/create
 module.exports.createAlbum = async (req, res) => {
     try {
-        let { name, singerId, avatar, music } = req.body
-        const arrMusic = music ? music.split(',').map(id => id.trim()) : []
+        let { name, singerId, avatar } = req.body
         const record = new Album({
             name,
             avatar,
             singerId,
-            music: arrMusic,
             slug: slugHelper.slug(name)
         })
         await record.save()
@@ -137,11 +145,9 @@ module.exports.deleteAlbum = async (req, res) => {
 // PATCH: /api/album/edit/:id
 module.exports.editAlbum = async (req, res) => {
     try {
-        let { name, singerId, avatar, music } = req.body
+        let { name, avatar } = req.body
         let newAlbum = {
             name,
-            singerId,
-            music: music ? music.split(',').map(id => id.trim()) : [],
             slug: slugHelper.slug(name)
         }
         if(avatar){
@@ -172,3 +178,49 @@ module.exports.editAlbum = async (req, res) => {
       });
     }
 };
+
+// PATCH: /api/album/add/musicToAlbum
+module.exports.addMusicToAlbum = async (req, res) => {
+    try {
+        const { musicId, albumId } = req.body;
+        const arrMusicId = musicId ? musicId.split(',').map(id => id.trim()) : [];
+
+        const albumRecord = await Album.findById(albumId);
+        if (!albumRecord) {
+            return res.status(CONFIG_MESSAGE_ERRORS.INVALID.status).json({
+                status: "error",
+                msg: "Album không tồn tại.",
+                data: null
+            });
+        }
+
+        for (const id of arrMusicId) {
+            try {
+                const musicRecord = await Music.findById(id);
+                if (!musicRecord) {
+                    continue;
+                }
+
+                if(musicRecord.singerId.toString() != albumRecord.singerId.toString()){
+                    continue
+                }
+                musicRecord.album = albumId
+                await musicRecord.save();
+            } catch (err) {
+                console.error(`Lỗi khi xử lý bài hát với ID ${id}: ${err.message}`);
+            }
+        }
+
+        res.status(CONFIG_MESSAGE_ERRORS.ACTION_SUCCESS.status).json({
+            status: "success",
+            msg: "Thêm bài hát vào album thành công.",
+            data: null
+        });
+    } catch (error) {
+        res.status(CONFIG_MESSAGE_ERRORS.INTERNAL_ERROR.status).json({
+            status: "error",
+            message: 'Lỗi hệ thống.',
+            data: error.message
+        });
+    }
+}

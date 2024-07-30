@@ -22,22 +22,33 @@ module.exports.systemGet = async (req, res) => {
 // PATCH: /api/system
 module.exports.systemPatch = async (req, res) => {
     try {
-        const { siteName, footer, upgradePrice, logoUrl, maintenanceMode } = req.body;
+        const { siteName, footer, upgradePrice, momo, logo, logoFold, maintenanceMode } = req.body;
+        if(!siteName || !footer || !upgradePrice || !momo || !logo || !logoFold || maintenanceMode === undefined){
+            return res.status(CONFIG_MESSAGE_ERRORS.INVALID.status).json({
+                status: "error",
+                msg: "Tồn tại trường bắt buộc chưa nhập",
+                data: req.body
+            })
+        }
         const system = await System.findOne({});
         if (system) {
             await System.updateOne({}, {
                 siteName,
-                footer, 
-                upgradePrice: parseInt(upgradePrice), 
-                logoUrl, 
+                footer,
+                upgradePrice: parseInt(upgradePrice),
+                momo,
+                logo,
+                logoFold,
                 maintenanceMode
             });
         } else {
             const newSystem = new System({
                 siteName,
-                footer, 
-                upgradePrice, 
-                logoUrl, 
+                footer,
+                upgradePrice: parseInt(upgradePrice),
+                momo,
+                logo,
+                logoFold,
                 maintenanceMode
             });
             await newSystem.save();

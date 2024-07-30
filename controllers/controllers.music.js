@@ -5,6 +5,7 @@ const user = require("../helper/user.js")
 const { addImage, addMp3} = require("../helper/cloudinary.js")
 const slugHelper = require("../helper/slug.js");
 const { getLyrics } = require("../helper/crawlLyricsApi.js");
+const Singer = require("../models/models.singers.js");
 
 // GET: /api/music?keyword=
 module.exports.getListMusic = async (req, res) => {
@@ -14,12 +15,26 @@ module.exports.getListMusic = async (req, res) => {
         let regexLyric = new RegExp(req.query.keyword, "i");
 
         const nameResults = await Music.find({ slug: keyword, deleted: false })
-            .populate('singerId')
-            .populate('otherSingersId');
+            .populate({
+                path: "singerId",
+                select: "fullName slug"
+            })
+            .populate({
+                path: "otherSingersId",
+                select: "fullName slug"
+            })
+            .select("name slug avatar")
 
         const lyricsResults = await Music.find({ lyrics: regexLyric, deleted: false })
-            .populate('singerId')
-            .populate('otherSingersId');
+            .populate({
+                path: "singerId",
+                select: "fullName slug"
+            })
+            .populate({
+                path: "otherSingersId",
+                select: "fullName slug"
+            })
+            .select("name slug avatar")
 
         const allResults = [...nameResults, ...lyricsResults];
         const uniqueResults = allResults.reduce((acc, current) => {
@@ -59,6 +74,14 @@ module.exports.getOneMusic = async (req, res) => {
             slug: slug,
             deleted: false
         })
+            .populate({
+                path: "singerId",
+                select: "fullName slug"
+            })
+            .populate({
+                path: "otherSingersId",
+                select: "fullName slug"
+            })
 
         const isPremium = await user.checkPremium(req, res);
 
@@ -115,7 +138,7 @@ module.exports.createMusic = async (req, res) => {
                 data: null
             });
         }
-        const { name, lyrics, description, singerId, otherSingersId, album, musicType, premium } = req.body;
+        const { name, lyrics, description, singerId, otherSingersId, musicType, premium } = req.body;
         if(!name || !lyrics || !singerId){
             res.status(CONFIG_MESSAGE_ERRORS.INVALID.status).json({
                 status: "error",
@@ -123,7 +146,24 @@ module.exports.createMusic = async (req, res) => {
                 data: null
             })
         }
+        try {
+            const singerRecord = await Singer.findById(singerId)
+            if(!singerRecord){
+                return res.status(CONFIG_MESSAGE_ERRORS.INVALID.status).json({
+                    status: "error",
+                    msg: "Không tồn tại ca sĩ",
+                    data: nul
+                })
+            }
+        } catch (error) {
+            return res.status(CONFIG_MESSAGE_ERRORS.INVALID.status).json({
+                status: "error",
+                msg: "Không tồn tại ca sĩ",
+                data: nul
+            })
+        }
         const arrOtherSingerIds = otherSingersId ? otherSingersId.split(',').map(id => id.trim()) : []
+        const arrMusicType = musicType ? musicType.split(',').map(id => id.trim()) : []
         const avatarUrl = await addImage(req.files.avatar[0].buffer);
         const mp3Url = await addMp3(req.files.urlMp3[0].buffer);
         let slug = slugHelper.slug(name)
@@ -134,8 +174,7 @@ module.exports.createMusic = async (req, res) => {
             description,
             singerId,
             otherSingersId: arrOtherSingerIds,
-            album,
-            musicType,
+            musicType: arrMusicType,
             premium,
             avatar: avatarUrl,
             urlMp3: mp3Url
@@ -218,17 +257,17 @@ module.exports.editMusic = async (req, res) => {
     }
 };
 
-// GET: /api/music/zingmp3/crawl-lyrics
+// GET: /api/music/zingmp3/crawl-lyrics?name=
 module.exports.crawlLyrics = async (req, res) => {
     try {
-        if(!req.body.name){
+        if(!req.query.name){
             return res.status(CONFIG_MESSAGE_ERRORS.INVALID.status).json({
                 status: "error",
                 message: 'Chưa nhập tên bài hát.',
                 data: null
             }); 
         }
-        const objectLyrics = await getLyrics(req.body.name)
+        const objectLyrics = await getLyrics(req.query.name)
 
         res.status(CONFIG_MESSAGE_ERRORS.ACTION_SUCCESS.status).json(objectLyrics)
     } catch (error) {
@@ -240,13 +279,13 @@ module.exports.crawlLyrics = async (req, res) => {
     }
 }
 
-// POST: /api/music/addToPlaylist/:musicId/:playlistId
+// POST: /api/music/addToPlaylist
 module.exports.addToPlaylist = async (req, res) => {
     try {
-        const { musicId, playlistId } = req.params
-
-        const playlistRecord = await Playlist.findById(playlistId)
-        if(!playlistRecord){
+        const { musicId, playlistId } = req.body;
+        const arrMusicId = musicId ? musicId.split(',').map(id => id.trim()) : [];
+        const playlistRecord = await Playlist.findById(playlistId);
+        if (!playlistRecord) {
             return res.status(CONFIG_MESSAGE_ERRORS.INVALID.status).json({
                 status: "error",
                 msg: "Playlist không tồn tại.",
@@ -263,33 +302,27 @@ module.exports.addToPlaylist = async (req, res) => {
             });
         }
 
-        const musicRecord = await Music.findById(musicId)
-        if(!musicRecord){
-            return res.status(CONFIG_MESSAGE_ERRORS.INVALID.status).json({
-                status: "error",
-                msg: "Nhạc không tồn tại.",
-                data: null
-            });
-        }
+        for (const id of arrMusicId) {
+            try {
+                const musicRecord = await Music.findById(id);
+                if (!musicRecord) {
+                    continue;
+                }
 
-        const check = playlistRecord.music.includes(musicId);
-        if(check){
-            res.status(CONFIG_MESSAGE_ERRORS.INVALID.status).json({
-                status: "error",
-                msg: "Bài hát đã tồn tại trong playlist.",
-                data: null
-            });
-        }else{
-            playlistRecord.music.push(musicId)
-            await playlistRecord.save()
-            
-            res.status(CONFIG_MESSAGE_ERRORS.ACTION_SUCCESS.status).json({
-                status: "error",
-                msg: "Thêm bài hát vào playlist thành công.",
-                data: null
-            });
+                if (!playlistRecord.music.includes(id)) {
+                    playlistRecord.music.push(id);
+                }
+            } catch (error) {
+                continue
+            }
         }
+        await playlistRecord.save();
 
+        res.status(CONFIG_MESSAGE_ERRORS.ACTION_SUCCESS.status).json({
+            status: "success",
+            msg: "Thêm bài hát vào playlist thành công.",
+            data: null
+        });
     } catch (error) {
         res.status(CONFIG_MESSAGE_ERRORS.INTERNAL_ERROR.status).json({
             status: "error",
@@ -299,13 +332,15 @@ module.exports.addToPlaylist = async (req, res) => {
     }
 }
 
-// PATCH: /api/music/deleteFromPlaylist/:musicId/:playlistId
+
+// PATCH: /api/music/deleteFromPlaylist
 module.exports.deleteFromPlaylist = async (req, res) => {
     try {
-        const { musicId, playlistId } = req.params
+        const { musicId, playlistId } = req.body;
+        const arrMusicId = musicId ? musicId.split(',').map(id => id.trim()) : [];
 
-        const playlistRecord = await Playlist.findById(playlistId)
-        if(!playlistRecord){
+        const playlistRecord = await Playlist.findById(playlistId);
+        if (!playlistRecord) {
             return res.status(CONFIG_MESSAGE_ERRORS.INVALID.status).json({
                 status: "error",
                 msg: "Playlist không tồn tại.",
@@ -322,33 +357,28 @@ module.exports.deleteFromPlaylist = async (req, res) => {
             });
         }
 
-        const musicRecord = await Music.findById(musicId)
-        if(!musicRecord){
-            return res.status(CONFIG_MESSAGE_ERRORS.INVALID.status).json({
-                status: "error",
-                msg: "Nhạc không tồn tại.",
-                data: null
-            });
+        for (const id of arrMusicId) {
+            try {
+                const musicRecord = await Music.findById(id);
+                if (!musicRecord) {
+                    continue;
+                }
+
+                if (playlistRecord.music.includes(id)) {
+                    playlistRecord.music = playlistRecord.music.filter(playlistId => playlistId.toString() !== id);
+                }
+            } catch (error) {
+                continue
+            }
         }
 
-        const check = playlistRecord.music.includes(musicId);
-        if(!check){
-            res.status(CONFIG_MESSAGE_ERRORS.INVALID.status).json({
-                status: "error",
-                msg: "Không thể xóa bài hát không tồn tại trong playlist.",
-                data: null
-            });
-        }else{
-            playlistRecord.music = playlistRecord.music.filter(id => id.toString() !== musicId);
-            await playlistRecord.save()
-            
-            res.status(CONFIG_MESSAGE_ERRORS.ACTION_SUCCESS.status).json({
-                status: "error",
-                msg: "Xóa bài hát khỏi playlist thành công.",
-                data: null
-            });
-        }
+        await playlistRecord.save();
 
+        res.status(CONFIG_MESSAGE_ERRORS.ACTION_SUCCESS.status).json({
+            status: "success",
+            msg: "Xóa bài hát khỏi playlist thành công.",
+            data: null
+        });
     } catch (error) {
         res.status(CONFIG_MESSAGE_ERRORS.INTERNAL_ERROR.status).json({
             status: "error",

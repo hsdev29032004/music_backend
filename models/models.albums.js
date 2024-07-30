@@ -12,11 +12,6 @@ const AlbumSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
-    music: [{ 
-        type: mongoose.Schema.Types.ObjectId, 
-        ref: 'Music',
-        default: []
-    }]
 })
 
 const Album = mongoose.model("Album", AlbumSchema, "albums")

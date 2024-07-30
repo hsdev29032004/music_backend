@@ -62,7 +62,7 @@ module.exports.getSinger = async (req, res) => {
 // POST: /api/singer/create
 module.exports.createSinger = async (req, res) => {
     try {
-        const fullName = req.body.fullName
+        const { fullName, description} = req.body
         if (!req.file || !fullName) {
             return res.status(CONFIG_MESSAGE_ERRORS.INVALID.status).json({
                 status: "eror",
@@ -76,7 +76,8 @@ module.exports.createSinger = async (req, res) => {
         const newSinger = new Singer({
             fullName,
             slug,
-            avatar
+            avatar,
+            description
         })
         await newSinger.save()
 
@@ -97,7 +98,7 @@ module.exports.createSinger = async (req, res) => {
 // PATCH: /api/singer/edit/:id
 module.exports.editSinger = async (req, res) => {
     try {
-        const { fullName } = req.body
+        const { fullName, description } = req.body
         if(!fullName){
             return res.status(CONFIG_MESSAGE_ERRORS.INVALID.status).json({
                 status: "error",
@@ -108,7 +109,8 @@ module.exports.editSinger = async (req, res) => {
 
         let obj = {
             fullName,
-            slug: slugHelper.slug(fullName)
+            slug: slugHelper.slug(fullName),
+            description
         }
         if(req.file){
             obj.avatar = await addImage(req.file.buffer)

@@ -50,7 +50,7 @@ router.patch(
   authMiddlewares.checkAuth(ROLE_SYSTEM.ADMIN),
   upload.single("avatar"),
   async (req, res, next) => {
-    if (!req.body.name || !req.body.singerId) {
+    if (!req.body.name) {
       return res.status(CONFIG_MESSAGE_ERRORS.INVALID.status).json({
         status: "error",
         msg: `Có trường bắt buộc chưa được nhập`,
@@ -80,6 +80,13 @@ router.delete(
   authMiddlewares.checkLogin,
   authMiddlewares.checkAuth(ROLE_SYSTEM.ADMIN),
   controller.deleteAlbum
+)
+
+router.post(
+  "/add/musicToAlbum",
+  authMiddlewares.checkLogin,
+  authMiddlewares.checkAuth(ROLE_SYSTEM.ADMIN),
+  controller.addMusicToAlbum
 )
 
 module.exports = router

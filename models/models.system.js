@@ -5,7 +5,8 @@ const SystemSchema = new mongoose.Schema({
     footer: String,
     upgradePrice: Number,
     momo: String,
-    logoUrl: String,
+    logo: String,
+    logoFold: String,
     maintenanceMode: Boolean,
 })
 

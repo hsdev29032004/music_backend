@@ -44,13 +44,13 @@ router.get(
 )
 
 router.post(
-    "/addToPlaylist/:musicId/:playlistId",
+    "/add/toPlaylist",
     authMiddlewares.checkLogin,
     controller.addToPlaylist
 )
 
 router.post(
-    "/deleteFromPlaylist/:musicId/:playlistId",
+    "/delete/fromPlaylist",
     authMiddlewares.checkLogin,
     controller.deleteFromPlaylist
 )

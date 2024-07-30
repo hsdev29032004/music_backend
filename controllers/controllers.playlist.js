@@ -9,6 +9,7 @@ module.exports.getListPlaylist = async (req, res) => {
         const playlist = await Playlist.find({
             userId: req.params.id
         })
+            .select("name slug avatar userId")
 
         res.status(CONFIG_MESSAGE_ERRORS.GET_SUCCESS.status).json({
             status: "success",
@@ -33,10 +34,16 @@ module.exports.getPlaylist = async (req, res) => {
             .populate({
                 path: "music",
                 select: "name slug avatar singerId",
-                populate: {
-                    path: "singerId",
-                    select: "fullName slug"
-                }
+                populate: [
+                    {
+                        path: "singerId",
+                        select: "fullName slug"
+                    },
+                    {
+                        path: "otherSingersId",
+                        select: "fullName slug"
+                    }
+                ]
             })
         res.status(CONFIG_MESSAGE_ERRORS.GET_SUCCESS.status).json({
             status: "success",
@@ -88,7 +95,6 @@ module.exports.deletePlaylist = async (req, res) => {
 module.exports.createPlaylist = async (req, res) => {
     try {
         const name = req.body.name
-        console.log(req.body);
         if (!name) {
             return res.status(CONFIG_MESSAGE_ERRORS.INVALID.status).json({
                 status: "error",

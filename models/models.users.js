@@ -16,7 +16,7 @@ const UserSchema = new mongoose.Schema({
     },
     avatar: {
         type: String,
-        default: "https://res.cloudinary.com/dfjft1zvv/image/upload/v1721808393/famcido781xorsyoazvs.jpg"
+        default: "https://res-console.cloudinary.com/dfjft1zvv/media_explorer_thumbnails/494d90f16bdfd0ab35377c1d338a4a43/hover?v=1722247373"
     },
     likedMusic: [{ 
         type: mongoose.Schema.Types.ObjectId, 
