@@ -43,25 +43,49 @@ const validateRegister = (req, res, next) => {
         let errors = {};
 
         if (!req.body.email) {
-            errors.email = "Email chưa được nhập";
+            return res.status(CONFIG_MESSAGE_ERRORS.INVALID.status).json({
+                status: "error",
+                msg: "Email chưa được nhập",
+                data: null
+            });
         } else {
             if (!emailRegex.test(req.body.email)) {
-                errors.email = "Email không đúng định dạng";
+                return res.status(CONFIG_MESSAGE_ERRORS.INVALID.status).json({
+                    status: "error",
+                    msg: "Email không đúng định dạng",
+                    data: null
+                });
             }
         }
 
         if (!req.body.password) {
-            errors.password = "Password chưa được nhập";
+            return res.status(CONFIG_MESSAGE_ERRORS.INVALID.status).json({
+                status: "error",
+                msg: "Password chưa được nhập",
+                data: null
+            });
         } else if (req.body.password.length < 6) {
-            errors.password = "Password phải có ít nhất 6 ký tự";
+            return res.status(CONFIG_MESSAGE_ERRORS.INVALID.status).json({
+                status: "error",
+                msg: "Password phải có ít nhất 6 ký tự",
+                data: null
+            });
         }
 
         if (req.body.password != req.body.repassword) {
-            errors.repassword = "Password nhập lại chưa đúng";
+            return res.status(CONFIG_MESSAGE_ERRORS.INVALID.status).json({
+                status: "error",
+                msg: "Password nhập lại chưa đúng",
+                data: null
+            });
         }
 
         if (!req.body.fullName) {
-            errors.repassword = "Họ và tên chưa được nhập";
+            return res.status(CONFIG_MESSAGE_ERRORS.INVALID.status).json({
+                status: "error",
+                msg: "Họ và tên chưa được nhập",
+                data: null
+            });
         }
 
         if (Object.keys(errors).length > 0) {
@@ -85,7 +109,6 @@ const validateRegister = (req, res, next) => {
 const validateResetPassword = (req, res, next) => {
     try {
         let errors = {};
-
         if (!req.body.password ) {
             errors.password = "Password chưa được nhập";
         } else if (req.body.password.length < 6) {
@@ -95,8 +118,8 @@ const validateResetPassword = (req, res, next) => {
         if (Object.keys(errors).length > 0) {
             return res.status(CONFIG_MESSAGE_ERRORS.INVALID.status).json({
                 status: "error",
-                msg: "Dữ liệu không hợp lệ",
-                data: errors
+                msg: errors.password,
+                data: null
             });
         }
 
@@ -107,8 +130,8 @@ const validateResetPassword = (req, res, next) => {
         if (Object.keys(errors).length > 0) {
             return res.status(CONFIG_MESSAGE_ERRORS.INVALID.status).json({
                 status: "error",
-                msg: "Dữ liệu không hợp lệ",
-                data: errors
+                msg: errors.repassword,
+                data: null
             });
         }
 

@@ -23,7 +23,7 @@ module.exports.getListMusic = async (req, res) => {
                 path: "otherSingersId",
                 select: "fullName slug"
             })
-            .select("name slug avatar")
+            .select("name slug avatar premium")
 
         const lyricsResults = await Music.find({ lyrics: regexLyric, deleted: false })
             .populate({
@@ -279,7 +279,7 @@ module.exports.crawlLyrics = async (req, res) => {
     }
 }
 
-// POST: /api/music/addToPlaylist
+// POST: /api/music/add/toPlaylist
 module.exports.addToPlaylist = async (req, res) => {
     try {
         const { musicId, playlistId } = req.body;

@@ -116,7 +116,7 @@ module.exports.likeAlbum = async (req, res) => {
             await albumRecord.save()
 
             return res.status(CONFIG_MESSAGE_ERRORS.ACTION_SUCCESS.status).json({
-                status: "success",
+                status: "unlike",
                 msg: "Bỏ thích album thành công.",
                 data: null
             });
@@ -128,7 +128,7 @@ module.exports.likeAlbum = async (req, res) => {
             await albumRecord.save()
 
             return res.status(CONFIG_MESSAGE_ERRORS.ACTION_SUCCESS.status).json({
-                status: "success",
+                status: "like",
                 msg: "Thích album thành công.",
                 data: null
             });
@@ -184,7 +184,7 @@ module.exports.subcribeSinger = async (req, res) => {
             await singerRecord.save()
 
             return res.status(CONFIG_MESSAGE_ERRORS.ACTION_SUCCESS.status).json({
-                status: "success",
+                status: "unlike",
                 msg: "Bỏ quan tâm ca sĩ thành công.",
                 data: null
             });
@@ -196,7 +196,7 @@ module.exports.subcribeSinger = async (req, res) => {
             await singerRecord.save()
 
             return res.status(CONFIG_MESSAGE_ERRORS.ACTION_SUCCESS.status).json({
-                status: "success",
+                status: "like",
                 msg: "Quan tâm ca sĩ thành công.",
                 data: null
             });

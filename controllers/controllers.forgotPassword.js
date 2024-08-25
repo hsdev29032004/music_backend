@@ -60,7 +60,7 @@ module.exports.forgot = async (req, res) => {
         res.status(CONFIG_MESSAGE_ERRORS.ACTION_SUCCESS.status).json({
             status: "success",
             msg: "Gửi yêu cầu thành công",
-            data: null
+            data: record.token
         })
     } catch (error) {
         res.status(CONFIG_MESSAGE_ERRORS.INTERNAL_ERROR.status).json({
@@ -124,6 +124,7 @@ module.exports.postOtp = async (req, res) => {
 // POST: /api/forgot-password/reset
 module.exports.reset = async (req, res) => {
     try {
+        console.log("chạy vào đây");
         const tokenReset = req.cookies.tokenReset
         if(!tokenReset){
             return res.status(CONFIG_MESSAGE_ERRORS.INTERNAL_ERROR.status).json({

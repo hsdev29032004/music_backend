@@ -46,7 +46,7 @@ module.exports.registerPost = async (req, res) => {
 module.exports.loginPost = async (req, res) => {
     try {
         const { email, password } = req.body
-        const user = await User.findOne({ email: email }).select("name avatar level password token")
+        const user = await User.findOne({ email: email }).select("fullName avatar level password token slug")
         if (!user) {
             return res.status(CONFIG_MESSAGE_ERRORS.INVALID.status).json({
                 status: "error",
@@ -97,3 +97,43 @@ module.exports.logoutPost = async (req, res) => {
     }
 }
 
+module.exports.checkLogin = async (req, res) => {
+    try {
+        const token = req.cookies.token
+        let obj = {
+            id: "",
+            createdAt: "",
+            email: "",
+            fullName: "",
+            level: 0,
+            avatar: "",
+            slug: "",
+            likedAlbum: [],
+            likedMusic: [],
+            password: "",
+            slug: "",
+            subcribedSinger: [],
+            token: "",
+            updatedAt: "",
+            deleted: "false"
+        }
+        if(!token){
+            return res.json(obj)
+        }
+        
+        const user = await User.findOne({
+            token
+        })
+        if(!user){
+            return res.json(obj)
+        }
+
+        res.json(user)
+    } catch (error) {
+        res.status(CONFIG_MESSAGE_ERRORS.INTERNAL_ERROR.status).json({
+            status: "error",
+            msg: "Lỗi hệ thống.",
+            data: error.message
+        })
+    }
+}

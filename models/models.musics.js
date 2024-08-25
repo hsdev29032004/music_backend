@@ -30,7 +30,7 @@ const MusicSchema = new mongoose.Schema({
     },
     musicType: [{ 
         type: mongoose.Schema.Types.ObjectId, 
-        ref: 'Singer',
+        ref: 'MusicType',
         default: [] 
     }],
     deleted: {

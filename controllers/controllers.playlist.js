@@ -33,7 +33,7 @@ module.exports.getPlaylist = async (req, res) => {
         })
             .populate({
                 path: "music",
-                select: "name slug avatar singerId",
+                select: "name slug avatar singerId premium",
                 populate: [
                     {
                         path: "singerId",

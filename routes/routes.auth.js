@@ -10,4 +10,6 @@ router.post("/login", validateMiddlewares.validateLogin, controller.loginPost)
 
 router.post("/logout", controller.logoutPost)
 
+router.get("/check-login", controller.checkLogin)
+
 module.exports = router

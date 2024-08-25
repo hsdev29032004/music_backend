@@ -7,7 +7,7 @@ function formatTime(milliseconds) {
 }
 
 const getLyrics = async (musicSearch) => {
-    const browser = await puppeteer.launch({ headless: false });
+    const browser = await puppeteer.launch({ headless: true });
     const page = await browser.newPage();
     await page.goto('https://zingmp3.vn/');
 

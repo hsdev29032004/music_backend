@@ -12,6 +12,8 @@ router.get("/", controller.getListSinger)
 
 router.get("/:slug", controller.getSinger)
 
+router.get("/:slug/albums", controller.getAlbums)
+
 router.post(
     "/create", 
     authMiddlewares.checkLogin,

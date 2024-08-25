@@ -3,6 +3,7 @@ const Singer = require("../models/models.singers.js")
 const Music = require("../models/models.musics.js")
 const slugHelper = require("../helper/slug.js")
 const { addImage } = require("../helper/cloudinary.js")
+const Album = require("../models/models.albums.js")
 
 
 // GET: /api/singer?keyword=
@@ -41,7 +42,16 @@ module.exports.getSinger = async (req, res) => {
         const musics = await Music.find({
             deleted: false,
             singerId: singer._id
-        }).select("name slug avatar")
+        })/*.select("name slug avatar")*/
+        .select("name slug avatar singerId otherSingersId premium")
+        .populate({
+            path: 'singerId',
+            select: 'fullName slug'
+        })
+        .populate({
+            path: 'otherSingersId',
+            select: 'fullName slug'
+        })
 
         singer.infoMusic = musics
 
@@ -49,6 +59,32 @@ module.exports.getSinger = async (req, res) => {
             status: "success",
             msg: "Lấy dữ liệu thành công",
             data: singer
+        })
+    } catch (error) {
+        res.status(CONFIG_MESSAGE_ERRORS.INTERNAL_ERROR.status).json({
+            status: "error",
+            msg: "Lỗi hệ thống.",
+            data: null
+        })
+    }
+}
+
+// GET: /api/singer/:slug/albums
+module.exports.getAlbums = async (req, res) => {
+    try {
+        const singer = await Singer.findOne({slug: req.params.slug})        
+        const albums = await Album.find({
+            singerId: singer._id
+        })
+            .populate({
+                path: "singerId",
+                select: "slug fullName"
+            })
+
+        res.status(CONFIG_MESSAGE_ERRORS.GET_SUCCESS.status).json({
+            status: "success",
+            msg: "Lấy dữ liệu thành công",
+            data: albums
         })
     } catch (error) {
         res.status(CONFIG_MESSAGE_ERRORS.INTERNAL_ERROR.status).json({

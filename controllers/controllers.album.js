@@ -49,14 +49,14 @@ module.exports.getOneAlbum = async (req, res) => {
             deleted: false,
             album: album._id
         })
-            .select("name slug avatar singerId otherSingersId")
+            .select("name slug avatar singerId otherSingersId premium")
             .populate({
                 path: 'singerId',
-                select: 'fullName'
+                select: 'fullName slug'
             })
             .populate({
                 path: 'otherSingersId',
-                select: 'fullName'
+                select: 'fullName slug'
             })
 
         const isPremium = await user.checkPremium(req, res);
@@ -72,7 +72,7 @@ module.exports.getOneAlbum = async (req, res) => {
         res.status(CONFIG_MESSAGE_ERRORS.GET_SUCCESS.status).json({
             status: "success",
             msg: "Lấy album thành công",
-            album: album
+            data: album
         })
     }
     catch (error) {
@@ -148,7 +148,6 @@ module.exports.editAlbum = async (req, res) => {
         let { name, avatar } = req.body
         let newAlbum = {
             name,
-            slug: slugHelper.slug(name)
         }
         if(avatar){
             newAlbum.avatar=avatar
@@ -168,7 +167,7 @@ module.exports.editAlbum = async (req, res) => {
         res.status(CONFIG_MESSAGE_ERRORS.ACTION_SUCCESS.status).json({
             status: "success",
             msg: "Cập nhật album thành công",
-            data: null
+            data: newAlbum
         })
     } catch (error) {
       res.status(CONFIG_MESSAGE_ERRORS.INTERNAL_ERROR.status).json({
