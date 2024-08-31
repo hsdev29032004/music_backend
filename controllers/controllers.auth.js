@@ -124,6 +124,32 @@ module.exports.checkLogin = async (req, res) => {
         const user = await User.findOne({
             token
         })
+            .populate({
+                path: "likedAlbum",
+                select: "name slug singerId avatar",
+                populate: {
+                    path: "singerId",
+                    select: "fullName slug"
+                }
+            })
+            .populate({
+                path: "likedMusic",
+                select: "name slug avatar quantityLike singerId otherSingersId premium",
+                populate: [
+                    {
+                        path: "singerId",
+                        select: "fullName slug" 
+                    },
+                    {
+                        path: "otherSingersId",
+                        select: "fullName slug"
+                    }
+                ]
+            })
+            .populate({
+                path: "subcribedSinger",
+                select: "fullName slug avatar quantitySubcriber"
+            })
         if(!user){
             return res.json(obj)
         }

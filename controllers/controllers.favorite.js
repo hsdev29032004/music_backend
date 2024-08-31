@@ -74,7 +74,6 @@ module.exports.likeMusic = async (req, res) => {
     }
 };
 
-
 // POST: /api/favorite/album/:albumId/:userId
 module.exports.likeAlbum = async (req, res) => {
     try { 
@@ -143,7 +142,7 @@ module.exports.likeAlbum = async (req, res) => {
     }
 }
 
-// /api/favorite/singer/:singerId/:userId
+// POST: /api/favorite/singer/:singerId/:userId
 module.exports.subcribeSinger = async (req, res) => {
     try {
         const { userId, singerId } = req.params;

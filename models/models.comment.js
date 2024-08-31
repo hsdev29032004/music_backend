@@ -1,12 +1,19 @@
 const mongoose = require("mongoose")
 
 const CommentSchema = new mongoose.Schema({
-    userId: { 
+    user: { 
         type: mongoose.Schema.Types.ObjectId, 
         ref: 'User' 
     },
-    musicId: String,
+    music: { 
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'Music' 
+    },
     content: String,
+    isCensored: {
+        type: Boolean,
+        default: false
+    }
 },{
     timestamps: true
 })

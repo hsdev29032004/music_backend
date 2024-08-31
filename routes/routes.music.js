@@ -55,4 +55,9 @@ router.post(
     controller.deleteFromPlaylist
 )
 
+router.get(
+    "/get/rank",
+    controller.getRank
+)
+
 module.exports = router

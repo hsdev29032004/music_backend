@@ -39,6 +39,14 @@ module.exports.getSinger = async (req, res) => {
             slug
         }).lean()
 
+        if(!singer){
+            return res.status(CONFIG_MESSAGE_ERRORS.GET_SUCCESS.status).json({
+                status: "success",
+                msg: "Lấy dữ liệu thành công",
+                data: null
+            })
+        }
+
         const musics = await Music.find({
             deleted: false,
             singerId: singer._id
@@ -145,7 +153,6 @@ module.exports.editSinger = async (req, res) => {
 
         let obj = {
             fullName,
-            slug: slugHelper.slug(fullName),
             description
         }
         if(req.file){

@@ -1,5 +1,6 @@
 const { CONFIG_MESSAGE_ERRORS } = require("../config/error.js")
 const Playlist = require("../models/models.playlists.js")
+const Music = require("../models/models.musics.js")
 const user = require("../helper/user.js")
 const slugHelper = require("../helper/slug.js")
 
@@ -7,14 +8,25 @@ const slugHelper = require("../helper/slug.js")
 module.exports.getListPlaylist = async (req, res) => {
     try {
         const playlist = await Playlist.find({
-            userId: req.params.id
+            userId: req.params.id,
         })
-            .select("name slug avatar userId")
 
+        const updatedPlaylist = await Promise.all(playlist.map(async (element) => {
+            if (element.music?.length > 0) {
+                const music = await Music.findOne({
+                    _id: element.music[0]
+                });
+                if (music) {
+                    element.avatar = music.avatar
+                }
+            }
+            return element
+        }))
+        
         res.status(CONFIG_MESSAGE_ERRORS.GET_SUCCESS.status).json({
             status: "success",
             msg: "Lấy playlist thành công",
-            data: playlist
+            data: updatedPlaylist
         })
     } catch (error) {
         res.status(CONFIG_MESSAGE_ERRORS.INTERNAL_ERROR.status).json({

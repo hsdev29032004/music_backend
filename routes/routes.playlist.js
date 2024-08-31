@@ -16,7 +16,7 @@ router.get(
 
 router.get(
     "/detail/:slug",
-    authMiddlewares.checkLogin,
+    // authMiddlewares.checkLogin,
     controller.getPlaylist
 )
 

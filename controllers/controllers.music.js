@@ -85,7 +85,7 @@ module.exports.getOneMusic = async (req, res) => {
 
         const isPremium = await user.checkPremium(req, res);
 
-        if(!isPremium && music.premium){
+        if(!isPremium && music?.premium){
             music.urlMp3 = "https://res.cloudinary.com/dfjft1zvv/video/upload/v1721927244/n9ujjl017jhim7j6gevz.m4a"
         }
 
@@ -122,9 +122,9 @@ module.exports.deleteOneMusic = async (req, res) => {
 }
 
 // POST: /api/music/create
-module.exports.createMusic = async (req, res) => {
+module.exports.createMusic = async (req, res) => {    
     try {
-        if (!req.files.avatar || !req.files.avatar[0]) {
+        if (!req.files?.avatar || !req.files?.avatar[0]) {
             return res.status(CONFIG_MESSAGE_ERRORS.INVALID.status).json({ 
                 status: "error",
                 msg: 'Bắt buộc gửi lên ảnh đại diện',
@@ -189,7 +189,7 @@ module.exports.createMusic = async (req, res) => {
     } catch (error) {
         res.status(CONFIG_MESSAGE_ERRORS.INTERNAL_ERROR.status).json({ 
             status: "error",
-            message: 'Lỗi hệ thống.',
+            msg: 'Lỗi hệ thống.',
             data: error.message
         });
     }
@@ -198,11 +198,9 @@ module.exports.createMusic = async (req, res) => {
 // PATCH: /api/music/edit/:id
 module.exports.editMusic = async (req, res) => {
     try {
-        const { name, lyrics, description, singerId, otherSingersId, album, musicType, premium } = req.body;
-        const arrOtherSingerIds = otherSingersId ? otherSingersId.split(',').map(id => id.trim()) : [];
-        const arrMusicType = musicType ? musicType.split(',').map(id => id.trim()) : [];
+        const { name, lyrics, description, otherSingersId, album, premium } = req.body;        
 
-        if (!name || !lyrics || !singerId) {
+        if (!name.trim() || !lyrics.trim()) {
             return res.status(CONFIG_MESSAGE_ERRORS.INVALID.status).json({
                 status: "error",
                 msg: "Tồn tại trường bắt buộc chưa được nhập",
@@ -211,17 +209,16 @@ module.exports.editMusic = async (req, res) => {
         }
 
         let newMusic = {
-            name: name,
-            lyrics: lyrics,
-            singerId: singerId,
-            slug: slugHelper.slug(name)
+            name,
+            lyrics,
+            premium: premium || false,
+            otherSingersId: otherSingersId || [],
+            description: description || "",
         };
 
-        if (arrOtherSingerIds.length > 0) newMusic.otherSingersId = arrOtherSingerIds;
-        if (description) newMusic.description = description;
-        if (album) newMusic.album = album;
-        if (arrMusicType.length > 0) newMusic.musicType = arrMusicType;
-        if (typeof premium === "boolean") newMusic.premium = premium;
+        if(album ){
+            newMusic.album = album
+        }        
 
         if (req.files && req.files.avatar && req.files.avatar[0]) {
             const url = await addImage(req.files.avatar[0].buffer);
@@ -243,7 +240,7 @@ module.exports.editMusic = async (req, res) => {
             });
         }
 
-        res.status(200).json({
+        res.status(CONFIG_MESSAGE_ERRORS.ACTION_SUCCESS.status).json({
             status: "success",
             msg: "Cập nhật bài hát thành công",
             data: newMusic
@@ -332,7 +329,6 @@ module.exports.addToPlaylist = async (req, res) => {
     }
 }
 
-
 // PATCH: /api/music/deleteFromPlaylist
 module.exports.deleteFromPlaylist = async (req, res) => {
     try {
@@ -382,7 +378,58 @@ module.exports.deleteFromPlaylist = async (req, res) => {
     } catch (error) {
         res.status(CONFIG_MESSAGE_ERRORS.INTERNAL_ERROR.status).json({
             status: "error",
-            message: 'Lỗi hệ thống.',
+            msg: 'Lỗi hệ thống.',
+            data: error.message
+        });
+    }
+}
+
+// GET: /api/music/get/rank
+module.exports.getRank = async (req, res) => {    
+    try {
+        const musics = await Music.find({deleted: false})
+            .populate({
+                path: "singerId",
+                select: "fullName slug"
+            })
+            .populate({
+                path: "otherSingersId",
+                select: "fullName slug"
+            })
+            .select("name slug avatar premium quantityLike")
+        let k = Math.min(20, musics.length);
+        
+        let result = []
+        for (let i = 0; i < k; i++) {
+            let maxIndex = 0;
+            for (let j = 1; j < musics.length; j++) {
+                if (musics[j].quantityLike > musics[maxIndex].quantityLike) {
+                    maxIndex = j;
+                }
+            }
+            result.push(musics[maxIndex]);
+            musics.splice(maxIndex, 1);
+        }
+
+        const isPremium = await user.checkPremium(req, res);
+
+        if(!isPremium){
+            result.forEach(item => {
+                if(item.premium){
+                    item.urlMp3 = "https://res.cloudinary.com/dfjft1zvv/video/upload/v1721927244/n9ujjl017jhim7j6gevz.m4a"
+                }
+            })
+        }
+
+        res.status(CONFIG_MESSAGE_ERRORS.GET_SUCCESS.status).json({
+            status: "success",
+            msg: "Lấy dữ liệu thành công",
+            data: result
+        })
+    } catch (error) {        
+        res.status(CONFIG_MESSAGE_ERRORS.INTERNAL_ERROR.status).json({
+            status: "error",
+            msg: 'Lỗi hệ thống.',
             data: error.message
         });
     }

@@ -44,6 +44,14 @@ module.exports.getOneAlbum = async (req, res) => {
                 select: "fullName slug"
             })
             .lean()
+        
+        if(!album){
+            return res.status(CONFIG_MESSAGE_ERRORS.GET_SUCCESS.status).json({
+                status: "success",
+                msg: "Lấy album thành công",
+                data: null
+            })
+        }
 
         const musics = await Music.find({
             deleted: false,
@@ -86,7 +94,7 @@ module.exports.getOneAlbum = async (req, res) => {
 
 // POST: /api/album/create
 module.exports.createAlbum = async (req, res) => {
-    try {
+    try {        
         let { name, singerId, avatar } = req.body
         const record = new Album({
             name,

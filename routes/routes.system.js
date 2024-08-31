@@ -9,4 +9,6 @@ router.get("/", authMiddlewares.checkLogin, authMiddlewares.checkAuth(ROLE_SYSTE
 
 router.patch("/", authMiddlewares.checkLogin, authMiddlewares.checkAuth(ROLE_SYSTEM.ADMIN), controller.systemPatch)
 
+router.get("/info", authMiddlewares.checkLogin, authMiddlewares.checkAuth(ROLE_SYSTEM.ADMIN), controller.systemInfo)
+
 module.exports = router
