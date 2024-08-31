@@ -47,7 +47,7 @@ module.exports.likeMusic = async (req, res) => {
             await musicRecord.save()
 
             return res.status(CONFIG_MESSAGE_ERRORS.ACTION_SUCCESS.status).json({
-                status: "success",
+                status: "unlike",
                 msg: "Bỏ thích bài hát thành công.",
                 data: null
             });
@@ -59,7 +59,7 @@ module.exports.likeMusic = async (req, res) => {
             await musicRecord.save()
 
             return res.status(CONFIG_MESSAGE_ERRORS.ACTION_SUCCESS.status).json({
-                status: "success",
+                status: "like",
                 msg: "Thích bài hát thành công.",
                 data: null
             });

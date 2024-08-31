@@ -31,4 +31,10 @@ router.delete(
     controller.refuseComment
 )
 
+router.post(
+    "/create",
+    authMiddlewares.checkLogin,
+    controller.createComment
+)
+
 module.exports = router
