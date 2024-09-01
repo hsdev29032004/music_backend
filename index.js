@@ -13,9 +13,9 @@ const server = http.createServer(app)
 
 database.connect()
 const port = process.env.PORT
-// const feDomain = process.env.FE_DOMAIN
+const feDomain = process.env.FE_DOMAIN
 
-const allowedOrigins = ['http://localhost:3000'/*, 'https://c74d-2402-800-6d3e-95b-fcab-aa23-a446-1558.ngrok-free.app'*/];
+const allowedOrigins = [feDomain/*, 'https://c74d-2402-800-6d3e-95b-fcab-aa23-a446-1558.ngrok-free.app'*/];
 
 const io = new Server(server, {
     cors: {
