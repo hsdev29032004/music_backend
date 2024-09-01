@@ -57,6 +57,15 @@ module.exports.getPlaylist = async (req, res) => {
                     }
                 ]
             })
+
+        if(playlist?.music.length > 0){
+            const music = await Music.findOne({
+                _id: playlist.music[0]._id
+            })
+            if(music){
+                playlist.avatar = music.avatar
+            }
+        }
         res.status(CONFIG_MESSAGE_ERRORS.GET_SUCCESS.status).json({
             status: "success",
             msg: "Lấy playlist thành công",

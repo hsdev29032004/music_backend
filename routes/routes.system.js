@@ -5,7 +5,7 @@ const { ROLE_SYSTEM } = require("../config/error.js")
 const controller = require("../controllers/controllers.system.js")
 const authMiddlewares = require("../middlewares/middlewares.auth.js")
 
-router.get("/", authMiddlewares.checkLogin, authMiddlewares.checkAuth(ROLE_SYSTEM.ADMIN), controller.systemGet)
+router.get("/", controller.systemGet)
 
 router.patch("/", authMiddlewares.checkLogin, authMiddlewares.checkAuth(ROLE_SYSTEM.ADMIN), controller.systemPatch)
 

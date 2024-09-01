@@ -50,7 +50,7 @@ router.post(
 )
 
 router.post(
-    "/delete/fromPlaylist",
+    "/deleteFromPlaylist",
     authMiddlewares.checkLogin,
     controller.deleteFromPlaylist
 )
