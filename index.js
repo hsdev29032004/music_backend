@@ -15,11 +15,11 @@ database.connect()
 const port = process.env.PORT
 const feDomain = process.env.FE_DOMAIN
 
-const allowedOrigins = [feDomain/*, 'https://c74d-2402-800-6d3e-95b-fcab-aa23-a446-1558.ngrok-free.app'*/];
+// const allowedOrigins = [feDomain/*, 'https://c74d-2402-800-6d3e-95b-fcab-aa23-a446-1558.ngrok-free.app'*/];
 
 const io = new Server(server, {
     cors: {
-        origin: allowedOrigins,
+        origin: feDomain,
         methods: ["GET", "POST"],
     }
 })
@@ -41,15 +41,10 @@ io.on("connection", (socket) => {
 })
 
 app.use(cors({
-    origin: (origin, callback) => {
-        if (!origin || allowedOrigins.includes(origin)) {
-            callback(null, true);
-        } else {
-            callback(new Error('Not allowed by CORS'))
-        }
-    },
+    origin: feDomain, // Thay thế với URL của frontend
     credentials: true // Cho phép gửi cookies
 }));
+
 
 app.use(cookieParser())
 app.use(bodyParser.json());
