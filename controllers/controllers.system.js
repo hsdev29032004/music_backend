@@ -27,7 +27,7 @@ module.exports.systemGet = async (req, res) => {
 module.exports.systemPatch = async (req, res) => {
     try {
         const { siteName, footer, upgradePrice, momo, logo, logoFold, maintenanceMode } = req.body;
-        if(!siteName || !footer || !upgradePrice || !momo || !logo || !logoFold || maintenanceMode === undefined){
+        if(!siteName || !footer || !upgradePrice || !momo ){
             return res.status(CONFIG_MESSAGE_ERRORS.INVALID.status).json({
                 status: "error",
                 msg: "Tồn tại trường bắt buộc chưa nhập",
@@ -41,9 +41,6 @@ module.exports.systemPatch = async (req, res) => {
                 footer,
                 upgradePrice: parseInt(upgradePrice),
                 momo,
-                logo,
-                logoFold,
-                maintenanceMode
             });
         } else {
             const newSystem = new System({

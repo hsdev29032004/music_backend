@@ -42,7 +42,7 @@ router.post(
             orderInfo: 'pay with MoMo',
             partnerCode: 'MOMO',
             redirectUrl: 'http://localhost:3000/',
-            ipnUrl: 'https://2dd6-2402-800-6d3e-95b-b4c2-8ace-1928-992a.ngrok-free.app/api/payment/callback', //chú ý: cần dùng ngrok thì momo mới post đến url này được
+            ipnUrl: `${process.env.NGROK}/api/payment/callback`, //chú ý: cần dùng ngrok thì momo mới post đến url này được
             requestType: 'payWithMethod',
             extraData: '',
             orderGroupId: '',
