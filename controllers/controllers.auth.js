@@ -87,7 +87,11 @@ module.exports.loginPost = async (req, res) => {
 // POST: /api/auth/logout
 module.exports.logoutPost = async (req, res) => {
     try {
-        res.clearCookie("token")
+        res.clearCookie("token", {
+            httpOnly: true,
+            sameSite: 'None', // Cần thiết khi truyền cookies qua nhiều miền khác nhau
+            secure: true      // Bắt buộc khi sử dụng HTTPS (như với ngrok)
+        })
         res.status(CONFIG_MESSAGE_ERRORS.ACTION_SUCCESS.status).json({
             status: "success",
             msg: "Đăng xuất thành công.",
