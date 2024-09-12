@@ -66,7 +66,7 @@ module.exports.loginPost = async (req, res) => {
         res.cookie("token", user.token, {
             httpOnly: true,
             sameSite: 'None', // Cần thiết khi truyền cookies qua nhiều miền khác nhau
-            secure: true      // Bắt buộc khi sử dụng HTTPS (như với ngrok)
+            secure: false      // Bắt buộc khi sử dụng HTTPS (như với ngrok)
         });
         
         res.status(CONFIG_MESSAGE_ERRORS.ACTION_SUCCESS.status).json({
